@@ -29,16 +29,10 @@ namespace timeseries{
     //    virtual void estimate() = 0;
   };
   
-  template<typename MeanModel>
-  class MeanModelEngine : public EstimationEngine{
-  };
-  
-  template<typename VarianceModel>
-  class VarianceModelEngine : public EstimationEngine{
-  };
+
 
   template<typename MeanModel, typename VarianceModel>
-  class FullModelEngine : public EstimationEngine{};
+  class GenericEstimationEngine : public EstimationEngine{};
 
 
 
@@ -98,10 +92,10 @@ namespace timeseries{
   };
   
   /*
-  template<>
-  class Garch<1,1> : public VolatilityProcessModel{
+    template<>
+    class Garch<1,1> : public VolatilityProcessModel{
     
-  };
+    };
   */
 
   template<Size arSize>
@@ -124,10 +118,10 @@ namespace timeseries{
   public:
     TimeSeriesModel(){}
     /*
-    TimeSeriesModel(MeanProcessModel const& meanProcess,
-		    VolatilityProcessModel const& volProcess){
+      TimeSeriesModel(MeanProcessModel const& meanProcess,
+      VolatilityProcessModel const& volProcess){
             
-    }
+      }
     */
     void estimate();
     void forecastVolatility();
