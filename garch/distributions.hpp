@@ -1,3 +1,6 @@
+#ifndef timeseries_distribution_hpp
+#define timeseries_distribution_hpp
+
 #include "typedef.hpp"
 #include "timeseries.hpp"
 namespace timeseries{
@@ -42,3 +45,5 @@ namespace timeseries{
     }    
   };
 }
+
+#endif

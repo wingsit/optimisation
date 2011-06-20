@@ -10,3 +10,4 @@ unit_test_SOURCES = \
 	test_distribution.cpp \
 	test_filter.cpp
 
+unit_test_LDADD=../garch/libgarch.la

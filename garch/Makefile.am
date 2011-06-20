@@ -10,4 +10,5 @@ libgarch_la_HEADERS = \
 	timeseries.hpp
 libgarch_la_SOURCES = \
 	timeseriesmodel.cpp \
-	timeseries.cpp
+	timeseries.cpp \
+	estimationengine.cpp

@@ -7,7 +7,8 @@ namespace timeseries{
 
   using Eigen::DenseBase;  
   /*!
-    solving for y[i] = c + x[t] + sum(a[i] x[t-i], i = 1..., p) + sum(b[i] y[t-i], i = 1,..., q)
+    solving for response y[i] = c + x[t] + sum(a[i] x[t-i], i = 1..., p) + sum(b[i] y[t-i], i = 1,..., q)
+    \todo Only naive implementation now. More or less quadratic. Maybe using FFT/Z-transform will do some good. Need to think about the maths.
    */
   template<
     typename Derived1, 
@@ -20,6 +21,7 @@ namespace timeseries{
 	      const DenseBase<Derived3>& b,
 	      const DenseBase<Derived4>& y_,
 	      const double c = 0.,
+	      const double backfill = 0.,
 	      bool instantaneousX = true){
     DenseBase<Derived4>& y = const_cast<DenseBase<Derived4>&>(y_);
     size_t ma = a.rows();
@@ -29,7 +31,7 @@ namespace timeseries{
     size_t my = y.rows();    
     assert(mx==my);
 
-    y.topRows(std::max(ma, mb)) = DenseBase<Derived1>::Zero(std::max(ma, mb),y.cols());
+    y.topRows(std::max(ma, mb)) = DenseBase<Derived1>::Constant(std::max(ma, mb),y.cols(), backfill);
 
     if(instantaneousX){
       for(size_t i = std::max(ma, mb); i < y.rows(); ++i){

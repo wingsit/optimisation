@@ -8,6 +8,7 @@
 #include <boost/any.hpp>
 #include <boost/shared_ptr.hpp>
 #include <distributions.hpp>
+#include <estimationengine.hpp>
 //#include <iostream>
 namespace timeseries{
   
@@ -18,30 +19,12 @@ namespace timeseries{
   
   template<>
   class IsDynamic<DynamicSize> : public boost::true_type{};
-    
-
-  class EstimationEngine{
-    class Arguments;
-    class Result;
-    //    virtual Arguments* getParameters() = 0;
-    //    virtual Result getResults() = 0;
-    //    virtual void reset() = 0;
-    //    virtual void estimate() = 0;
-  };
-  
-
-
-  template<typename MeanModel, typename VarianceModel>
-  class GenericEstimationEngine : public EstimationEngine{};
-
-
-
+      
   class Model{
+    void estimate();
     
-    //    boost::shared_ptr<EstimationEngine> engine_;
-    virtual void estimate();
-    virtual ~Model(){}
   protected:
+    ~Model(){}
     class Parameter{
       virtual void reset() = 0;
     };
@@ -51,8 +34,7 @@ namespace timeseries{
     
   };
 
-  class MeanProcessModel:public Model{
-    
+  class MeanProcessModel:public Model{    
   protected:
     class Parameter : public Model::Parameter{};
     class Result : public Model::Result{};
@@ -60,28 +42,44 @@ namespace timeseries{
   };
   
   class VolatilityProcessModel:public Model{
-
+    
   };
   
   template< Size arSize , Size maSize >
   class Arma : public MeanProcessModel{
   public:
-    //    Arma():coefficients_(arSize+maSize+1){}
+    void residual(const RealSeries& data, RealSeries& residual){
+      
+    }
     
   };
 
   class ConstantMean : public MeanProcessModel{
     Real mean_;
   public:
-    class Parameter : public MeanProcessModel::Parameter{
-      Real mean;
-      void reset(){ mean = 0;}
-    };
-
-    class Result : public MeanProcessModel::Result{};
+    ConstantMean(Real mean = 0.):mean_(mean){}
+    void residual(const RealSeries& data, RealSeries& residual){
+      residual.resize(data.size());
+      residual = (data.array() - mean_).matrix();
+    }
+    Real& mean(){
+      return mean_;
+    }
+    const Real& mean() const{
+      return mean_;
+    }
+    void estimate(const RealSeries& trainingSample){
+      mean_ = trainingSample.sum()/trainingSample.size();
+    }
   };
   
   class ZeroMean : public ConstantMean{
+  public:
+    void residual(const RealSeries& data, RealSeries& residual){
+      residual.resize(data.size());
+      residual = data;
+    }
+    void estimate(){}
   };
 
   template<Size arSize , Size maSize >
@@ -103,8 +101,18 @@ namespace timeseries{
   };
 
   class ConstantVol : public VolatilityProcessModel{
+    Real meanVariance_;
   public:
+    void estimate(const RealSeries& residual){
+      meanVariance_ = residual.squaredNorm()/(residual.size()-1);
+    }
+    const Real& meanVariance() const{
+      return meanVariance_;
+    }
 
+    Real& meanVariance() {
+      return meanVariance_;
+    }
   };
 
   
@@ -115,18 +123,37 @@ namespace timeseries{
   class TimeSeriesModel{
     MeanModel meanProcess_;
     VolModel volProcess_;
+    boost::shared_ptr<EstimationEngine > engine_;
   public:
     TimeSeriesModel(){}
-    /*
-      TimeSeriesModel(MeanProcessModel const& meanProcess,
-      VolatilityProcessModel const& volProcess){
+
+    TimeSeriesModel(MeanModel const& meanProcess,
+		    VolModel const& volProcess):
+      meanProcess_(meanProcess), volProcess_(volProcess){
             
-      }
-    */
-    void estimate();
+    }
+
+    void setEngine(const boost::shared_ptr<EstimationEngine>& engine){
+      engine_ = engine;
+    }
+    void estimate(const RealSeries& rtn){
+      engine_->setup(static_cast<MeanProcessModel*>(&meanProcess_),
+		     static_cast<VolatilityProcessModel*>(&volProcess_));
+      engine_->performEstimation(rtn);    
+    }
+    MeanModel& meanProcess(){
+      return meanProcess_;
+    }
+
+    VolModel& volProcess(){
+      return volProcess_;
+    }
+
+    /*    
     void forecastVolatility();
     void forecastValue();
     void forecast();
+    */
   };
 }
 
