@@ -57,7 +57,7 @@ BOOST_AUTO_TEST_CASE(filter) {
         timeseries::filter(x, a, b+b, y);
         BOOST_REQUIRE((y == ArrayXd::Zero(10*n)).all());
       }*/
-    n = 100000;
+    n = 1000000;
     /*
     //order = 1
     {
@@ -169,11 +169,11 @@ BOOST_AUTO_TEST_CASE(filter) {
     }
     */
     {
-        for(size_t m = 2; m < 20; ++m) {
+        for(size_t m = 1; m < 20; ++m) {
             x = ArrayXd::Random(10*n);
-            x = x / x.matrix().norm();
+	    //            x = x / x.matrix().norm();
             y = ArrayXd::Random(10*n);
-            y = y / y.matrix().norm() * 1.e-6;
+	    //            y = y / y.matrix().norm();
             b = ArrayXd::Zero(0);
 
             a = ArrayXd(m);
@@ -214,7 +214,7 @@ BOOST_AUTO_TEST_CASE(filter) {
 //                std::cout << i << std::endl;
 //                BOOST_REQUIRE_CLOSE(y[i], yCopy[i], 0.000001);
 
-                BOOST_REQUIRE_MESSAGE((std::abs(y[i]-yCopy[i])/(std::abs(yCopy[i]>1e-6)?std::abs(yCopy[i]):1.)) < 1e-5,
+                BOOST_REQUIRE_MESSAGE((std::abs(y[i]-yCopy[i])/(std::abs(yCopy[i]>1e-6)?std::abs(yCopy[i]):1.)) < 1e-7,
 //                                      "The value of y["<<(i-1)<<"] is" << y[i-1]
 //                                      << " and the value of yCopy["<<(i-1)<<"] is " << yCopy[i-1] <<
                                       "The value of y["<<i<<"] is" << y[i]
