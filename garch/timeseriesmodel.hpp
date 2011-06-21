@@ -21,28 +21,32 @@ namespace timeseries{
   class IsDynamic<DynamicSize> : public boost::true_type{};
       
   class Model{
-    void estimate();
     
+  public:
+    virtual void estimate(const RealSeries&) = 0;
   protected:
-    ~Model(){}
+    virtual ~Model(){}
     class Parameter{
       virtual void reset() = 0;
     };
     class Result{
       std::map<std::string, boost::any> results;
     };
-    
+
   };
 
   class MeanProcessModel:public Model{    
+  public:
+    virtual void residual(const RealSeries& data, RealSeries& residual) = 0;
   protected:
     class Parameter : public Model::Parameter{};
     class Result : public Model::Result{};
-    
+
+
   };
   
   class VolatilityProcessModel:public Model{
-    
+
   };
   
   template< Size arSize , Size maSize >
@@ -115,45 +119,39 @@ namespace timeseries{
     }
   };
 
-  
-  template<typename MeanModel, 
-	   typename VolModel,
-	   typename Dist = Normal
-	   >
-  class TimeSeriesModel{
-    MeanModel meanProcess_;
-    VolModel volProcess_;
-    boost::shared_ptr<EstimationEngine > engine_;
+  class MeanVolatilityModel{
+    boost::shared_ptr<MeanProcessModel> meanModel_;
+    boost::shared_ptr<VolatilityProcessModel> volatilityModel_;
+    boost::shared_ptr<Distribution> distribution_;
+    boost::shared_ptr<EstimationEngine> engine_;
   public:
-    TimeSeriesModel(){}
-
-    TimeSeriesModel(MeanModel const& meanProcess,
-		    VolModel const& volProcess):
-      meanProcess_(meanProcess), volProcess_(volProcess){
-            
-    }
-
+    MeanVolatilityModel(){}
+    template<typename M, typename V, typename D>
+    MeanVolatilityModel(const M& mean, const V& vol, const D& dis)
+      :meanModel_(new M(mean)),
+      volatilityModel_(new V(vol)),
+      distribution_(new D(dis))
+    {}
     void setEngine(const boost::shared_ptr<EstimationEngine>& engine){
       engine_ = engine;
     }
     void estimate(const RealSeries& rtn){
-      engine_->setup(static_cast<MeanProcessModel*>(&meanProcess_),
-		     static_cast<VolatilityProcessModel*>(&volProcess_));
-      engine_->performEstimation(rtn);    
+      engine_->setup(meanModel_, 
+        volatilityModel_, 
+        distribution_);
+      engine_->performEstimation(rtn);
     }
-    MeanModel& meanProcess(){
-      return meanProcess_;
+    
+    const boost::shared_ptr<MeanProcessModel>&  meanModel() const{
+      return meanModel_;
     }
-
-    VolModel& volProcess(){
-      return volProcess_;
+    const boost::shared_ptr<VolatilityProcessModel>& volatilityModel() const{
+      return volatilityModel_;
     }
-
-    /*    
-    void forecastVolatility();
-    void forecastValue();
-    void forecast();
-    */
+    const boost::shared_ptr<EstimationEngine> engine() const{
+      return engine_;
+    }
+    
   };
 }
 

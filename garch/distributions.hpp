@@ -4,27 +4,16 @@
 #include "typedef.hpp"
 #include "timeseries.hpp"
 namespace timeseries{
-  template<typename Derived>
+
   class Distribution{
   public:
-    typedef Derived DistributionType;
-    void cdf(RealSeries& x) const;
-    void inverse_cdf(RealSeries& x) const;
-    void pdf(RealSeries& x) const{
-      static_cast<const DistributionType*>(this)->pdf(x);
-    }
+    virtual void pdf(RealSeries& x) const = 0;
     void operator()(RealSeries& x) const{
       pdf(x);
     }
-    void derivative(RealSeries& x) const;
-    void sample(RealSeries& x) const;
-    Real mean() const{static_cast<const DistributionType*>(this)->mean();}
-    Real variance() const{return std::pow(stdv(), 2.);}    
-    Real stdv() const{static_cast<const DistributionType*>(this)->stdv();}
-    
   };
 
-  class Normal : public Distribution<Normal>{
+  class Normal : public Distribution{
     Real mean_;
     Real stdv_;
   public:

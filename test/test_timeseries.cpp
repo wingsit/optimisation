@@ -32,22 +32,23 @@ BOOST_AUTO_TEST_CASE(mean_model) {
 BOOST_AUTO_TEST_CASE(variance_model) {
   using namespace timeseries;
   {
-    ZeroMean meanProcess;
+    ConstantMean meanProcess;
     const static unsigned n = 5000;
     RealSeries rtn = RealSeries::Random(n), residual = RealSeries(n);
     meanProcess.residual(rtn, residual);
     ConstantVol volProcess;
     volProcess.estimate(residual);
-    BOOST_REQUIRE_CLOSE(std::sqrt(volProcess.meanVariance()),std::sqrt((rtn.array() - rtn.sum()/rtn.size()).matrix().squaredNorm() / (rtn.size()-1)), 0.01);
+    BOOST_REQUIRE_CLOSE(std::sqrt(volProcess.meanVariance()),std::sqrt((rtn.array() - rtn.sum()/rtn.size()).matrix().squaredNorm() / (rtn.size()-1)), 0.1);
     
-    TimeSeriesModel<ZeroMean, ConstantVol> tsModel1;
+
     meanProcess.mean() = -10.;
     volProcess.meanVariance() = 1.;
-    TimeSeriesModel<ZeroMean, ConstantVol> tsModel2(meanProcess, volProcess);
+
+    MeanVolatilityModel mvModel(meanProcess, volProcess, Normal());
     boost::shared_ptr<EstimationEngine> engine(new ConstantEstimation);
-    tsModel2.setEngine(engine);
-    tsModel2.estimate(rtn);
-    ZeroMean& mm = tsModel2.meanProcess();
-    //    std::cout << mm.mean() << std::endl;
+    mvModel.setEngine(engine);
+    mvModel.estimate(rtn);
+    std::cout << boost::dynamic_pointer_cast<ConstantMean>(mvModel.meanModel())->mean()  << std::endl;
+
   }
 }

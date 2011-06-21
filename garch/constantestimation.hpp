@@ -7,15 +7,15 @@
 namespace timeseries{
 
 class ConstantEstimation : public GenericEstimationEngine<ConstantMean, ConstantVol, Normal>{
-  ConstantMean* meanProcess_;
-  ConstantVol* volProcess_;
-  
+
 public:
   
   void performEstimation(const RealSeries& rtn){
     RealSeries residual = rtn;
-    meanProcess_->residual(rtn, residual);
-    volProcess_->estimate(residual);
+    this->meanModel_->estimate(rtn);
+    this->meanModel_->residual(rtn, residual);
+    this->volModel_->estimate(residual);
+    
   }
   
 };
