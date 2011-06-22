@@ -1,6 +1,6 @@
 #include <vector>
 #include <Eigen/Eigen>
-
+#include <iostream>
 typedef Eigen::ArrayXd RealSeries;
 typedef Eigen::ArrayXd ParameterArray;
 //typedef RealSeries VolatilitySeries;
@@ -19,7 +19,7 @@ struct Distribution : public Derived{
     static_cast<const Derived*>(this)->pdfImpl(sample);
   }
   Size distributionParameterSize() const{
-    static_cast<const Derived*>(this)->distributionParameterSizeImpl();
+    return static_cast<const Derived*>(this)->distributionParameterSizeImpl();
   }
   void setDistributionParameters(const ParameterArray& parameters) {
     static_cast<Derived*>(this)->setDistributionParametersImpl(parameters);
@@ -105,7 +105,7 @@ struct MeanProcess : public Derived{
     static_cast<const Derived*>(this)->residualsImpl( rtn, residuals);
   }
   Size meanProcessParameterSize() const{
-    static_cast<const Derived*>(this)->meanProcessParameterSizeImpl();
+    return static_cast<const Derived*>(this)->meanProcessParameterSizeImpl();
   }
   void setMeanProcessParameters(const ParameterArray& parameters) {
     static_cast<Derived*>(this)->setMeanProcessParametersImpl(parameters);
@@ -121,7 +121,7 @@ struct  VarianceProcess : public Derived{
     static_cast< const Derived*>(this)->variancesImpl(residuals, variances);
   }
   Size varianceProcessParameterSize() const{
-    static_cast<const Derived*>(this)->varianceProcessParameterSizeImpl();
+    return static_cast<const Derived*>(this)->varianceProcessParameterSizeImpl();
   }
   void setVarianceProcessParameters(const ParameterArray& parameters) {
     static_cast<Derived*>(this)->setVarianceProcessParametersImpl(parameters);
@@ -146,12 +146,12 @@ struct ConstantMean{
   void getMeanProcessParametersImpl( Eigen::VectorBlock<ParameterArray> p){
     p[0] = mean_;
   }
-
 };
+
 struct ConstantVariance{
   Real meanVol_;
   void variancesImpl(const RealSeries& residuals, VarianceSeries& variances) const{
-    variances = residuals - meanVol_ * meanVol_;
+    variances = (residuals - meanVol_).pow(2.);
   }
   Size varianceProcessParameterSizeImpl() const{
     return 1;
@@ -172,11 +172,11 @@ struct  TimeSeriesModel :
   public VarianceProcess<V>, 
   public Distribution<D>{
   TimeSeriesModel(){
-    Size index[4] = {0};
+    index[0] = 0;
     index[1] = this->meanProcessParameterSize();
     index[2] = index[1] + this->varianceProcessParameterSize();
     index[3] = index[2] + this->distributionParameterSize();
-    parameters_.resize(index[3]+1);
+    parameters_.resize(index[3]);
   }
   Real likelihood(const RealSeries& data) {    
     RealSeries residuals(data.size());
@@ -203,42 +203,74 @@ struct  TimeSeriesModel :
   }
 
   void fetchParameters() {
-    this->getMeanProcessParameters(parameters_.segment(index[0], index[1]));
-    this->getVarianceProcessParameters(parameters_.segment(index[1], index[2]));
-    this->getDistributionParameters(parameters_.segment(index[2], index[3]));
+    this->getMeanProcessParameters(parameters_.segment(index[0], meanProcessParameterSize()));
+    this->getVarianceProcessParameters(parameters_.segment(index[1], varianceProcessParameterSize()));
+    this->getDistributionParameters(parameters_.segment(index[2], distributionParameterSize()));
   }
   void setParameters(){
-    this->setMeanProcessParameters(parameters_.segment(index[0], index[1]));
-    this->setVarianceProcessParameters(parameters_.segment(index[1], index[2]));
-    this->setDistributionParameters(parameters_.segment(index[2], index[3]));
+    this->setMeanProcessParameters(parameters_.segment(index[0], meanProcessParameterSize()));
+    this->setVarianceProcessParameters(parameters_.segment(index[1], varianceProcessParameterSize()));
+    this->setDistributionParameters(parameters_.segment(index[2], distributionParameterSize()));
   }  
+  
 };
 
+template<typename T>
+class LikelihoodHelper{
+  T model_;
+  RealSeries data_;
+public:
+  LikelihoodHelper(const T& model,
+    const RealSeries data): model_(model), data_(data){}
+  Real operator()(const ParameterArray& parameters){
+    model_.parameters() = parameters;
+    model_.setParameters();
+    return model_.likelihood(data_);
+  }
+};
 
 template<class M, class V, class D>
 class Estimator{
-  TimeSeriesModel<M, V, D> t;
+
+  TimeSeriesModel<M, V, D> t_;
 public:
+  template<class M, class V, class D>
+  Estimator(  TimeSeriesModel<M, V, D> t):t_(t){}
+  Estimator(){}
   void test(){
-    t.parameters();
+    t_.parameters();
   }
 };
-
 
 
 int main(){
   TimeSeriesModel<ConstantMean, ConstantVariance, Normal> timeSeriesModel;
 
   Size n = 1000;
-  RealSeries sample(n);
+  RealSeries sample = RealSeries::Random(n);
   timeSeriesModel.pdf(sample);
-  timeSeriesModel.likelihood(sample);
+
   timeSeriesModel.distributionParameterSize();
+
+  ParameterArray p(2);
+  p[0] = 0;
+  p[1] = 1;
+  timeSeriesModel.parameters() = p;
+
   timeSeriesModel.setParameters();
+  p[0] = 2;
+  p[1] = 3;
+  timeSeriesModel.parameters() = p;
   timeSeriesModel.fetchParameters();
+  timeSeriesModel.likelihood(sample);
   Estimator<
   ConstantMean, 
     ConstantVariance, 
     Normal> estimator;
   estimator.test(); 
+  p[0] = 0;
+  p[1] = 1;
+
+  LikelihoodHelper<TimeSeriesModel<ConstantMean, ConstantVariance, Normal> > objective(timeSeriesModel, sample);
+  std::cout << objective(p) << std::endl;
 }
