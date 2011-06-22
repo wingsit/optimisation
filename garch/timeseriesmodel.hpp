@@ -20,33 +20,28 @@ namespace timeseries{
   template<>
   class IsDynamic<DynamicSize> : public boost::true_type{};
       
-  class Model{
-    
+  class ModelParameters{    
   public:
     virtual void estimate(const RealSeries&) = 0;
+    virtual Size parameterLength() const = 0;
+    virtual void setParameters(const RealSeries&) = 0;
+    virtual const RealSeries& getParameters() const = 0;
   protected:
     virtual ~Model(){}
-    class Parameter{
-      virtual void reset() = 0;
-    };
-    class Result{
-      std::map<std::string, boost::any> results;
-    };
-
   };
 
   class MeanProcessModel:public Model{    
   public:
     virtual void residual(const RealSeries& data, RealSeries& residual) = 0;
-  protected:
-    class Parameter : public Model::Parameter{};
-    class Result : public Model::Result{};
-
-
   };
   
   class VolatilityProcessModel:public Model{
-
+  public:
+    virtual void variances(const RealSeries& residual, RealSeries& variances) const = 0;
+    void volatilities(const RealSeries& residual, RealSeries& variances) const{
+      this->variances(residual, variances);
+      variances = variances.array().sqrt().matrix();
+    }
   };
   
   template< Size arSize , Size maSize >
@@ -75,6 +70,9 @@ namespace timeseries{
     void estimate(const RealSeries& trainingSample){
       mean_ = trainingSample.sum()/trainingSample.size();
     }
+    Size parameterLength() const{
+      return 1;
+    }
   };
   
   class ZeroMean : public ConstantMean{
@@ -84,6 +82,9 @@ namespace timeseries{
       residual = data;
     }
     void estimate(){}
+    Size parameterLength() const{
+      return 0;
+    }
   };
 
   template<Size arSize , Size maSize >
@@ -116,6 +117,13 @@ namespace timeseries{
 
     Real& meanVariance() {
       return meanVariance_;
+    }
+    Size parameterLength() const{
+      return 1;
+    }
+    virtual void variances(const RealSeries& residuals, RealSeries& variances) const{
+      variances.resize(residuals.size());
+      variances = (residuals.array() * residuals.array()).matrix();
     }
   };
 

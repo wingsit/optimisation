@@ -8,6 +8,7 @@ namespace timeseries{
   class Distribution{
   public:
     virtual void pdf(RealSeries& x) const = 0;
+    virtual Size parameterLength() const = 0;
     void operator()(RealSeries& x) const{
       pdf(x);
     }
@@ -20,6 +21,9 @@ namespace timeseries{
     Normal(Real mean = 0, 
 	   Real stdv = 1):
       mean_(mean), stdv_(stdv){}
+    Size parameterLength() const{
+      return 0;
+    }
     void pdf(RealSeries& x) const{      
       x = (1./std::sqrt(2. * 3.141592653 * stdv_ * stdv_) * (-(x.array()-mean_).square()/(2 * stdv_ * stdv_)).exp()).matrix();
     }

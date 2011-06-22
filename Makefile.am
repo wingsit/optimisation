@@ -1,2 +1,2 @@
 AUTOMAKE_OPTIONS = foreign
-SUBDIRS =  src garch test
+SUBDIRS =  src garch test sandbox
