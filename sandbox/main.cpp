@@ -56,12 +56,18 @@ public:
     typename F::ModelType minimise(F f)const {
       Eigen::VectorXd df, p;
       Eigen::MatrixXd ddf;
+      size_t iter = 0;
       while(f.parameters().matrix().norm() > 1e-6){
-	p = f.parameters().matrix();
-	f(p, df);
-	f(p, ddf);
-	p += df.colPivHouseholderQr().solve(df);
-	f.parameters() = p.array();
+
+        p = f.parameters().matrix();
+        f(p, df);
+
+        f(p, ddf);
+        std::cout << std::string(20, '=') << std::endl;
+        std::cout << iter << "\n\n" << p << "\n\n" << df << "\n\n"  << ddf << "\n\n";
+        p += ddf.ldlt().solve(df);
+        f.parameters() = p.array();
+        iter++;
       }
       return f.model();
      
@@ -96,15 +102,15 @@ int main() {
       Normal> estimator;
     estimator.test();
     */
-    p[0] = 0;
-    p[1] = 1;
+    p[0] = 5;
+    p[1] = 20;
 
     LikelihoodHelper<TimeSeriesModel<ConstantMean, ConstantVariance, Normal> > objective(timeSeriesModel, sample);
     std::cout << objective(p) << std::endl;
 
 
 
-    NumericalDerivative<LikelihoodHelper<TimeSeriesModel<ConstantMean, ConstantVariance, Normal> > > objective2(objective);
+    NumericalDerivative<LikelihoodHelper<TimeSeriesModel<ConstantMean, ConstantVariance, Normal> > , Central> objective2(objective);
 
     ParameterArray df(2);
     Eigen::MatrixXd ddf(2,2);
