@@ -203,23 +203,25 @@ struct  TimeSeriesModel :
   }
 
   void fetchParameters() {
-    this->getMeanProcessParameters(parameters_.segment(index[0], meanProcessParameterSize()));
-    this->getVarianceProcessParameters(parameters_.segment(index[1], varianceProcessParameterSize()));
-    this->getDistributionParameters(parameters_.segment(index[2], distributionParameterSize()));
+    this->getMeanProcessParameters(parameters_.segment(index[0], this->meanProcessParameterSize()));
+    this->getVarianceProcessParameters(parameters_.segment(index[1], this->varianceProcessParameterSize()));
+    this->getDistributionParameters(parameters_.segment(index[2], this->distributionParameterSize()));
   }
   void setParameters(){
-    this->setMeanProcessParameters(parameters_.segment(index[0], meanProcessParameterSize()));
-    this->setVarianceProcessParameters(parameters_.segment(index[1], varianceProcessParameterSize()));
-    this->setDistributionParameters(parameters_.segment(index[2], distributionParameterSize()));
+    this->setMeanProcessParameters(parameters_.segment(index[0], this->meanProcessParameterSize()));
+    this->setVarianceProcessParameters(parameters_.segment(index[1], this->varianceProcessParameterSize()));
+    this->setDistributionParameters(parameters_.segment(index[2], this->distributionParameterSize()));
   }  
   
 };
 
 template<typename T>
-class LikelihoodHelper{
+class LikelihoodHelper : std::unary_function<const ParameterArray&, Real>{
+  
   T model_;
   RealSeries data_;
 public:
+  typedef T ModelType;
   LikelihoodHelper(const T& model,
     const RealSeries data): model_(model), data_(data){}
   Real operator()(const ParameterArray& parameters){
@@ -228,20 +230,28 @@ public:
     return model_.likelihood(data_);
   }
 };
-
+/*
 template<class M, class V, class D>
 class Estimator{
 
   TimeSeriesModel<M, V, D> t_;
 public:
-  template<class M, class V, class D>
+  //  template<class M, class V, class D>
   Estimator(  TimeSeriesModel<M, V, D> t):t_(t){}
   Estimator(){}
   void test(){
     t_.parameters();
   }
 };
+*/
 
+class NewtonMethod{
+public:
+  template<typename T>
+  typename T::ModelType minimise(T)const{
+    
+  }
+};
 
 int main(){
   TimeSeriesModel<ConstantMean, ConstantVariance, Normal> timeSeriesModel;
@@ -263,14 +273,20 @@ int main(){
   timeSeriesModel.parameters() = p;
   timeSeriesModel.fetchParameters();
   timeSeriesModel.likelihood(sample);
+  /*
   Estimator<
   ConstantMean, 
     ConstantVariance, 
     Normal> estimator;
   estimator.test(); 
+  */
   p[0] = 0;
   p[1] = 1;
 
   LikelihoodHelper<TimeSeriesModel<ConstantMean, ConstantVariance, Normal> > objective(timeSeriesModel, sample);
   std::cout << objective(p) << std::endl;
+
+  timeSeriesModel = NewtonMethod().minimise(objective);
+  
+
 }
