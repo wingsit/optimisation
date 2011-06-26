@@ -21,6 +21,10 @@ struct  VarianceProcess : public Derived {
     void getVarianceProcessParameters(Eigen::VectorBlock<ParameterArray> parameters) {
         static_cast< Derived*>(this)->getVarianceProcessParametersImpl(parameters);
     }
+    void forecastVariance(const RealSeries& rtn, Size n, RealSeries& forecast) const {
+        static_cast< const Derived*>(this)->forecastVarianceImpl(rtn, n, forecast);
+    }
+
 };
 
 }

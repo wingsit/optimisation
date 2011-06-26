@@ -1,166 +1,66 @@
-#ifndef timeseriesmodel_hpp
-#define timeseriesmodel_hpp
+#ifndef timeseries_timeseriesmodel_hpp
+#define timeseries_timeseriesmodel_hpp
 
-#include <Eigen/Dense>
-#include "timeseries.hpp"
-#include "typedef.hpp"
-#include <map>
-#include <boost/any.hpp>
-#include <boost/shared_ptr.hpp>
-#include <distributions.hpp>
-#include <estimationengine.hpp>
-//#include <iostream>
-namespace timeseries{
-  
-  static const Size DynamicSize = -1;
+//#include <meanprocess.hpp>
+//#include <varianceprocess.hpp>
 
-  template<Size i>
-  class IsDynamic:public boost::false_type{};
-  
-  template<>
-  class IsDynamic<DynamicSize> : public boost::true_type{};
-      
-  class ModelParameters{    
-  public:
-    virtual void estimate(const RealSeries&) = 0;
-    virtual Size parameterLength() const = 0;
-    virtual void setParameters(const RealSeries&) = 0;
-    virtual const RealSeries& getParameters() const = 0;
-  protected:
-    virtual ~Model(){}
-  };
+namespace timeseries {
 
-  class MeanProcessModel:public Model{    
-  public:
-    virtual void residual(const RealSeries& data, RealSeries& residual) = 0;
-  };
-  
-  class VolatilityProcessModel:public Model{
-  public:
-    virtual void variances(const RealSeries& residual, RealSeries& variances) const = 0;
-    void volatilities(const RealSeries& residual, RealSeries& variances) const{
-      this->variances(residual, variances);
-      variances = variances.array().sqrt().matrix();
-    }
-  };
-  
-  template< Size arSize , Size maSize >
-  class Arma : public MeanProcessModel{
-  public:
-    void residual(const RealSeries& data, RealSeries& residual){
-      
-    }
-    
-  };
+template<typename M> class MeanProcess;
+template<typename V> class VarianceProcess;
+template<typename D> class Distribution;
 
-  class ConstantMean : public MeanProcessModel{
-    Real mean_;
-  public:
-    ConstantMean(Real mean = 0.):mean_(mean){}
-    void residual(const RealSeries& data, RealSeries& residual){
-      residual.resize(data.size());
-      residual = (data.array() - mean_).matrix();
-    }
-    Real& mean(){
-      return mean_;
-    }
-    const Real& mean() const{
-      return mean_;
-    }
-    void estimate(const RealSeries& trainingSample){
-      mean_ = trainingSample.sum()/trainingSample.size();
-    }
-    Size parameterLength() const{
-      return 1;
-    }
-  };
-  
-  class ZeroMean : public ConstantMean{
-  public:
-    void residual(const RealSeries& data, RealSeries& residual){
-      residual.resize(data.size());
-      residual = data;
-    }
-    void estimate(){}
-    Size parameterLength() const{
-      return 0;
-    }
-  };
-
-  template<Size arSize , Size maSize >
-  class Garch: public VolatilityProcessModel{
-  public:
-
-
-  };
-  
-  /*
-    template<>
-    class Garch<1,1> : public VolatilityProcessModel{
-    
-    };
-  */
-
-  template<Size arSize>
-  class Arch : public Garch<arSize, 0>{
-  };
-
-  class ConstantVol : public VolatilityProcessModel{
-    Real meanVariance_;
-  public:
-    void estimate(const RealSeries& residual){
-      meanVariance_ = residual.squaredNorm()/(residual.size()-1);
-    }
-    const Real& meanVariance() const{
-      return meanVariance_;
+template<class M, class V, class D>
+struct  TimeSeriesModel :
+    public MeanProcess<M>,
+    public VarianceProcess<V>,
+    public Distribution<D> {
+    TimeSeriesModel() {
+        index[0] = 0;
+        index[1] = this->meanProcessParameterSize();
+        index[2] = index[1] + this->varianceProcessParameterSize();
+        index[3] = index[2] + this->distributionParameterSize();
+        parameters_.resize(index[3]);
     }
 
-    Real& meanVariance() {
-      return meanVariance_;
-    }
-    Size parameterLength() const{
-      return 1;
-    }
-    virtual void variances(const RealSeries& residuals, RealSeries& variances) const{
-      variances.resize(residuals.size());
-      variances = (residuals.array() * residuals.array()).matrix();
-    }
-  };
+    Real loglikelihood(const RealSeries& data) {
+        RealSeries residuals(data.size());
+        RealSeries variances(data.size());
+        this->residuals(data, residuals);
+        this->variances(residuals, variances);
+        residuals /= variances.sqrt();
+        this->pdf(residuals);
+        return -residuals.log().sum();
 
-  class MeanVolatilityModel{
-    boost::shared_ptr<MeanProcessModel> meanModel_;
-    boost::shared_ptr<VolatilityProcessModel> volatilityModel_;
-    boost::shared_ptr<Distribution> distribution_;
-    boost::shared_ptr<EstimationEngine> engine_;
-  public:
-    MeanVolatilityModel(){}
-    template<typename M, typename V, typename D>
-    MeanVolatilityModel(const M& mean, const V& vol, const D& dis)
-      :meanModel_(new M(mean)),
-      volatilityModel_(new V(vol)),
-      distribution_(new D(dis))
-    {}
-    void setEngine(const boost::shared_ptr<EstimationEngine>& engine){
-      engine_ = engine;
+        //    this->residuals(const RealSeries& rtn, RealSeries& residuals);
+        //    this->variances(const RealSeries& residuals, VarianceSeries& variances){);
     }
-    void estimate(const RealSeries& rtn){
-      engine_->setup(meanModel_, 
-        volatilityModel_, 
-        distribution_);
-      engine_->performEstimation(rtn);
+
+    mutable ParameterArray parameters_;
+    Size index[4];
+
+    ParameterArray& parameters() {
+        return parameters_;
     }
-    
-    const boost::shared_ptr<MeanProcessModel>&  meanModel() const{
-      return meanModel_;
+
+    const ParameterArray& parameters() const {
+        return parameters_;
     }
-    const boost::shared_ptr<VolatilityProcessModel>& volatilityModel() const{
-      return volatilityModel_;
+
+    void fetchParameters() {
+        this->getMeanProcessParameters(parameters_.segment(index[0], this->meanProcessParameterSize()));
+        this->getVarianceProcessParameters(parameters_.segment(index[1], this->varianceProcessParameterSize()));
+        this->getDistributionParameters(parameters_.segment(index[2], this->distributionParameterSize()));
     }
-    const boost::shared_ptr<EstimationEngine> engine() const{
-      return engine_;
+    void setParameters() {
+        this->setMeanProcessParameters(parameters_.segment(index[0], this->meanProcessParameterSize()));
+        this->setVarianceProcessParameters(parameters_.segment(index[1], this->varianceProcessParameterSize()));
+        this->setDistributionParameters(parameters_.segment(index[2], this->distributionParameterSize()));
     }
-    
-  };
+
+};
+
 }
+
 
 #endif

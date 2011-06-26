@@ -8,4 +8,4 @@ AC_PROG_LIBTOOL
 AC_SUBST([AM_CXXFLAGS])
 AC_SUBST([AM_LDFLAGS])
 
-AC_OUTPUT(Makefile src/Makefile test/Makefile garch/Makefile sandbox/Makefile)
+AC_OUTPUT(Makefile  test/Makefile garch/Makefile )
