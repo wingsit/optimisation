@@ -49,5 +49,8 @@ BOOST_AUTO_TEST_CASE(FIRST_ORDER){
   trueFun.hessian(x, hessian2);
   DEBUG_PRINT(hessian2);
   DEBUG_PRINT(hessian1-hessian2);
-
+  VectorXd direction = hessian1.ldlt().solve(gradient1);
+  DEBUG_PRINT(direction - hessian2.ldlt().solve(gradient2));
+  DEBUG_PRINT(x + direction);
+  DEBUG_PRINT(fun(x-direction));
 }

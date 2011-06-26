@@ -29,7 +29,7 @@ public:
                   //Numerical Optimization by Nocedal Page 168 Formula 7.6
                   std::max(ep, std::sqrt(std::numeric_limits<scalar_type>::epsilon()))
                   //Numerical Optimization by Nocedal Page 169
-                  :std::max(ep, std::pow(std::numeric_limits<scalar_type>::epsilon(), 2./3));
+                  :std::max(ep, std::pow(std::numeric_limits<scalar_type>::epsilon(), 2./3.));
     }
 
     NumericalDerivative(const function_type& f_, scalar_type ep = 0.):
@@ -42,8 +42,8 @@ public:
     }
 
     template<typename T0>
-    NumericalDerivative(const T0& t0):function_type(t0) {
-        defaultEpsilon();
+    NumericalDerivative(const T0& t0, scalar_type ep = 0.):function_type(t0) {
+        defaultEpsilon(ep);
     }
 
     template<typename T0, typename T1>
@@ -117,28 +117,29 @@ public:
     //hessian
     inline scalar_type operator()(vector_type x, index_type i, index_type j) {
         scalar_type topleft, topright, bottomleft, bottomright;
-//    scalar_type left, top, bottom, right;
+        scalar_type result;
+        scalar_type epsilon_ = std::max(10e-6, epsilon);
         switch(mode) {
         case Forward:
             bottomleft = function_type::operator()(x);
-            x[i] += epsilon;
+            x[i] += epsilon_;
             topleft = function_type::operator()(x);
-            x[j] += epsilon;
+            x[j] += epsilon_;
             topright = function_type::operator()(x);
-            x[i] -= epsilon;
+            x[i] -= epsilon_;
             bottomright = function_type::operator()(x);
-            return (topright + bottomleft - topleft - bottomright) / (epsilon * epsilon);
+            return result = (topright + bottomleft - topleft - bottomright) / (epsilon_ * epsilon_);
         case Central:
-            x[i] += epsilon;
-            x[j] += epsilon;
+            x[i] += epsilon_;
+            x[j] += epsilon_;
             topright = function_type::operator()(x);
-            x[i] -= 2*epsilon;
+            x[i] -= 2*epsilon_;
             topleft = function_type::operator()(x);
-            x[j] -= 2*epsilon;
+            x[j] -= 2*epsilon_;
             bottomleft = function_type::operator()(x);
-            x[i] += 2*epsilon;
+            x[i] += 2*epsilon_;
             bottomright = function_type::operator()(x);
-            return 0.25*(topright + bottomleft - topleft - bottomright) / (epsilon * epsilon);
+            return result = 0.25*(topright + bottomleft - topleft - bottomright) / (epsilon_ * epsilon_);
         default:
             assert(false);
             return 0;
@@ -153,7 +154,7 @@ public:
                 else hessian(i, j) = hessian(j, i) = (*this)(x, i, j);
             }
         }
-        return n * (n-1) * 2;
+        return n * (n+1) * 2;
     }
 
 private:
