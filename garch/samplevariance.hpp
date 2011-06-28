@@ -21,20 +21,20 @@ public:
     }
 
     void setSampleVariance(const RealSeries& residuals) {
-      meanVol_ = std::sqrt(residuals.pow(2).sum()/ (residuals.size() - 1));
+        meanVol_ = std::sqrt(residuals.pow(2).sum()/ (residuals.size() - 1));
     }
 
 
-  Real& sampleStandardDeviation(){
-    return meanVol_;
-  }
+    Real& sampleStandardDeviation() {
+        return meanVol_;
+    }
 
-  const Real& sampleStandardDeviation() const{
-    return meanVol_;
-  }
+    const Real& sampleStandardDeviation() const {
+        return meanVol_;
+    }
 
 
-  
+
 
 };
 

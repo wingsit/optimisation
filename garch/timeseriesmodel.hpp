@@ -1,8 +1,8 @@
 #ifndef timeseries_timeseriesmodel_hpp
 #define timeseries_timeseriesmodel_hpp
 
-//#include <meanprocess.hpp>
-//#include <varianceprocess.hpp>
+#include <meanprocess.hpp>
+#include <varianceprocess.hpp>
 
 namespace timeseries {
 

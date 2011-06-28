@@ -68,8 +68,8 @@ public:
 
 
     //original function forward
-    inline scalar_type operator()(const vector_type& x){
-      return function_type::operator()(x);
+    inline scalar_type operator()(const vector_type& x) const {
+        return function_type::operator()(x);
     }
 
     /*
@@ -82,7 +82,7 @@ public:
     */
     //gradient
     /// \todo http://groups.google.com/group/comp.lang.c++.moderated/msg/e5fbc9305539f699
-    inline scalar_type operator()(vector_type x, index_type i) {
+    inline scalar_type operator()(vector_type x, index_type i) const{
         scalar_type centre, backstep, forwardstep;
         switch(mode) {
         case Forward:
@@ -103,7 +103,7 @@ public:
 
 
 
-    inline size_t operator()(const vector_type& x, vector_type& gradient) {
+    inline size_t operator()(const vector_type& x, vector_type& gradient) const{
         gradient.resize(x.size());
         for(index_type i = 0; i < x.size(); ++i) {
             gradient[i] = (*this)(x,i);
@@ -115,7 +115,7 @@ public:
 
 
     //hessian
-    inline scalar_type operator()(vector_type x, index_type i, index_type j) {
+    inline scalar_type operator()(vector_type x, index_type i, index_type j)const {
         scalar_type topleft, topright, bottomleft, bottomright;
         scalar_type result;
         scalar_type epsilon_ = std::max(10e-6, epsilon);
@@ -145,7 +145,7 @@ public:
             return 0;
         }
     }
-    inline size_t operator()(const vector_type& x, matrix_type& hessian) {
+    inline size_t operator()(const vector_type& x, matrix_type& hessian) const {
         index_type n = x.size();
         hessian.resize(n, n);
         for(index_type i = 0; i < n; ++i) {

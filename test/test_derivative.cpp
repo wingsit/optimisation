@@ -10,7 +10,7 @@ struct SymmetricInnerProduct{
   MatrixXd A_;
   SymmetricInnerProduct(const MatrixXd& A):A_(A){
   }
-  Real operator()(const VectorXd& v){
+  Real operator()(const VectorXd& v) const{
     return v.transpose() * A_ * v;
   }
   void derivative(const VectorXd& v, VectorXd& gradient){

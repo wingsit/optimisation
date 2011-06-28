@@ -21,6 +21,7 @@ samplevariance.hpp \
 student.hpp \
 timeseriesmodel.hpp \
 typedef.hpp \
-varianceprocess.hpp
+varianceprocess.hpp \
+statisticalfunctions.hpp
 
 libgarch_a_SOURCES = 
