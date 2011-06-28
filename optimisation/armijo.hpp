@@ -22,13 +22,13 @@ namespace timeseries {
       f(x, df);
       f(newX, dfnew);
       while((f(newX) > f(x) + rho_ * stepSize * df.transpose() * df) || ( df.transpose() * dir < sigma_ * dfnew.transpose() * dir)){
-	stepSize *= r_;	
-	df = dfnew;
-	newX = x + stepSize * dir;
-	f(newX, dfnew);
+        stepSize *= r_;
+        df = dfnew;
+        newX = x + stepSize * dir;
+        f(newX, dfnew);
       }
       return stepSize;
-    }    
+    }
     Real rho_, r_, sigma_;
   };
 

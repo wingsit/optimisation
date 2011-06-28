@@ -18,13 +18,14 @@ namespace timeseries {
       DEBUG_PRINT(x);
       DEBUG_PRINT(g);
       DEBUG_PRINT(G);
-      
+      DEBUG_PRINT(G.ldlt().solve(g));
       while(g.norm() > 10-3){
 	std::cout << std::string(20, '-') << std::endl;
-	d = -G.ldlt().solve(g);
+	d = G.ldlt().solve(g);
+  DEBUG_PRINT(G.ldlt().solve(g));
 	Real a = 1.;
 	a = lineSearch(obj, x, d, a);
-	DEBUG_PRINT(d);
+
 	DEBUG_PRINT(a);
 	DEBUG_PRINT(obj(x));
 	x = x +  a * d;
