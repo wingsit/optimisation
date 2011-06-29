@@ -13,7 +13,11 @@ struct Normal {
     template<typename T>
     void pdfImpl(T& x) const {
         Real sigma2 = sigma_ * sigma_;
-        x = 1. /std::sqrt(2. * PI * sigma2) * std::exp((-0.5* (x - mean_)*(x-mean_) / sigma2 ));
+	T exponent = (-0.5* (x - mean_)*(x-mean_) / sigma2 );
+        x = 1. /std::sqrt(2. * PI * sigma_) / sigma_ 
+	  * std::exp(
+		     (exponent <= -690).select(0, exponent)
+		     );
     }
     Size distributionParameterSizeImpl() const {
         return 0;

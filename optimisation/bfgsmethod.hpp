@@ -38,6 +38,9 @@ namespace timeseries {
 	obj(x, g);
 	DEBUG_PRINT((x + a * d).transpose());
 	x = x +  a * d;
+	DEBUG_PRINT(obj(x));
+	DEBUG_PRINT(H.inverse());
+	DEBUG_PRINT(H.inverse().ldlt().vectorD());
 	obj(x, gnew);
 	y = gnew - g;
 	s = x - xold;

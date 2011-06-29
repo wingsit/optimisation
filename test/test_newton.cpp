@@ -5,7 +5,9 @@
 #include <normal.hpp>
 #include <derivative.hpp>
 #include <newtonmethod.hpp>
+#include <bfgsmethod.hpp>
 #include <armijo.hpp>
+#include <statisticalfunctions.hpp>
 namespace timeseries{
 template<typename T>
 class LikelihoodHelper : public std::unary_function<Eigen::VectorXd, Real> {
@@ -61,11 +63,10 @@ public:
 }
 BOOST_AUTO_TEST_CASE(NEWTON_METHOD){
   using namespace timeseries;
-
   
   TimeSeriesModel<ConstantMean, ConstantVariance, Normal> timeSeriesModel;
 
-    Size n = 1000;
+    Size n = 500;
     //    RealSeries sample = RealSeries::Random(n);
         RealSeries sample(n);
 	for(int i = 0; i < n; ++i){
@@ -91,15 +92,17 @@ BOOST_AUTO_TEST_CASE(NEWTON_METHOD){
     timeSeriesModel.fetchParameters();
     timeSeriesModel.loglikelihood(sample);
 
-    p[0] = 1;
-    p[1] = 2;
+    p[0] = 0.5;
+    p[1] = 1;
 
     LikelihoodHelper<TimeSeriesModel<ConstantMean, ConstantVariance, Normal> > objective(timeSeriesModel, sample);
     std::cout << objective(p) << std::endl;
 
     NumericalDerivative<LikelihoodHelper<TimeSeriesModel<ConstantMean, ConstantVariance, Normal> > , Central> objective2(objective);
 
-    NewtonMethod<ArmijoLineSearch>()(objective2, p);
+    //std::cout << NewtonMethod<ArmijoLineSearch>()(objective2, p).transpose() << std::endl;
+    std::cout << BFGSMethod<ArmijoLineSearch>()(objective2, p).transpose() << std::endl;
+    std::cout << mean(sample) << " " << stdv(sample) << "\n";
 
     /*
     ParameterArray df(2);

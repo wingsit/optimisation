@@ -12,7 +12,7 @@ namespace timeseries {
 
   template<typename T>
   inline Real variance(const T& data){
-    return (data-mean(data)).pow(2).sum()/(data.size()-1);
+    return (data-mean(data)).pow(2.).sum()/(data.size()-1);
   }
   
   template<typename T>
@@ -29,7 +29,11 @@ namespace timeseries {
   inline Real nth_central_moment(const T& data, double n){
     return nth_moment(data - mean(data));
   }
-  
+
+  inline Eigen::ArrayXd log_return(const Eigen::ArrayXd& data){
+    size_t n = data.size();
+    return data.segment(1, n-1).log() - data.segment(0, n-1).log();
+  }
 }
 
 

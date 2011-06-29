@@ -3,6 +3,7 @@
 
 #include <varianceprocess.hpp>
 #include <filter.hpp>
+#include <statisticalfunctions.hpp>
 namespace timeseries {
 
 /*!
@@ -35,13 +36,24 @@ public:
         parameters.segment(1, p) = alpha_;
         parameters.segment(p+1, q) = beta_;
     }
-    void variancesImpl(const RealSeries& residuals, VarianecSeries& variances) const {
+    void variancesImpl(const RealSeries& residuals, VarianceSeries& variances) const {
         Real backfill = residuals.segment(0, 20).pow(2).sum()/19;
         filter(residuals, beta_, alpha_, variances, gamma_, backfill, false);
     }
 
 };
-
+  template<>
+  inline void Garch<1, 1>::variancesImpl(const RealSeries& residuals, VarianceSeries& variances) const {
+    variances.resize(residuals.size());
+    variances[0] = variance(residuals.segment(0, 20));
+    DEBUG_PRINT(residuals.segment(0, 20));
+    DEBUG_PRINT(variances[0]);
+    for(size_t i = 1; i < variances.size(); ++i){
+      variances[i] = gamma_ + alpha_[0] * std::pow(residuals[i-1], 2) + beta_[0] * variances[i-1];
+      DEBUG_PRINT(gamma_ + alpha_[0] * std::pow(residuals[i-1], 2) + beta_[0] * variances[i-1]);
+    }
+    //    DEBUG_PRINT(variances);
+  }
 
 /*
   ///Should specialise this for optimisation

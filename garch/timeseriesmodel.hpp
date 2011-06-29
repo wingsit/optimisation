@@ -3,9 +3,7 @@
 
 #include <meanprocess.hpp>
 #include <varianceprocess.hpp>
-
-
-
+#include <statisticalfunctions.hpp>
 namespace timeseries {
 
 template<typename M> class MeanProcess;
@@ -30,9 +28,18 @@ struct  TimeSeriesModel :
         RealSeries variances(data.size());
         this->residuals(data, residuals);
         this->variances(residuals, variances);
-        residuals /= variances.sqrt();
+	//	DEBUG_PRINT(mean(residuals));
+	//	DEBUG_PRINT(stdv(residuals));
+	//	DEBUG_PRINT(data.tail(10).transpose());
+	DEBUG_PRINT(residuals.tail(10).transpose());
+	DEBUG_PRINT(variances.head(10).transpose());
+	DEBUG_PRINT((residuals/variances.sqrt()).tail(10).transpose());
+        residuals = residuals / variances.sqrt();
+
         this->pdf(residuals);
-        return -(residuals<1e-6).select(1e-6, residuals).log().sum();
+	DEBUG_PRINT(residuals.log().tail(10).transpose());
+	//        return -(residuals<1e-6).select(1e-6, residuals).log().sum();
+        return -residuals.log().sum();
 
         //    this->residuals(const RealSeries& rtn, RealSeries& residuals);
         //    this->variances(const RealSeries& residuals, VarianceSeries& variances){);

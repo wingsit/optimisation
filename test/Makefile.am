@@ -11,6 +11,7 @@ unit_test_SOURCES = \
 	test_statisticalfunctions.cpp \
 	test_normal.cpp \
 	test_parser.cpp \
-	test_bfgs.cpp
+	test_bfgs.cpp \
+	test_garch.cpp
 
 #unit_test_LDADD=../garch/libgarch.a

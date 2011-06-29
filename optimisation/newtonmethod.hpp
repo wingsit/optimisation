@@ -21,8 +21,10 @@ namespace timeseries {
       DEBUG_PRINT(G.ldlt().solve(g));
       while(g.norm() > 10e-10){
 	std::cout << std::string(20, '-') << std::endl;
-	d = -G.ldlt().solve(g);
-	DEBUG_PRINT(G.ldlt().solve(g));
+	d = G.ldlt().solve(-g);
+	DEBUG_PRINT(G.ldlt().solve(-g).transpose());
+	DEBUG_PRINT(G.ldlt().vectorD());
+
 	Real a = 1.;
 	a = lineSearch(obj, x, d, a);
 
@@ -31,9 +33,9 @@ namespace timeseries {
 	x = x +  a * d;
 	obj(x, g);
 	obj(x, G);
-	DEBUG_PRINT(x);
-	DEBUG_PRINT(g);
-	DEBUG_PRINT(G);
+	DEBUG_PRINT(x.transpose());
+	DEBUG_PRINT(g.transpose());
+	//	DEBUG_PRINT(G);
       }
       return x;
     }
