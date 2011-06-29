@@ -9,6 +9,7 @@ unit_test_SOURCES = \
 	test_newton.cpp \
 	test_samplemodel.cpp \
 	test_statisticalfunctions.cpp \
-	test_normal.cpp
+	test_normal.cpp \
+	test_parser.cpp
 
-unit_test_LDADD=../garch/libgarch.a
+#unit_test_LDADD=../garch/libgarch.a

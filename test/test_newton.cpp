@@ -31,7 +31,7 @@ public:
     ParameterArray& parameters() {
         return model_.parameters();
     }
-};
+ };
   /*
 class NewtonMethod {
 public:
@@ -115,4 +115,21 @@ BOOST_AUTO_TEST_CASE(NEWTON_METHOD){
     timeSeriesModel.forecastVariance(sample, 10, forecast);
     std::cout << forecast << std::endl;
     */
+}
+
+
+#include <rosenbrock.hpp>
+
+BOOST_AUTO_TEST_CASE(NEWTON_ON_ROSENBROCK){
+  using namespace timeseries;
+  NumericalDerivative<Rosenbrock> f;
+  std::cout << (f.criticalPoint() - NewtonMethod<ArmijoLineSearch>()(f, f.start())).norm() << std::endl;
+}
+
+#include <extendedrosenbrock.hpp>
+
+BOOST_AUTO_TEST_CASE(NEWTON_ON_EXTENDED_ROSENBROCK){
+  using namespace timeseries;
+  NumericalDerivative<ExtendedRosenbrock> f(10);
+  std::cout << (f.criticalPoint() - NewtonMethod<ArmijoLineSearch>()(f, f.start())).norm() << std::endl;
 }

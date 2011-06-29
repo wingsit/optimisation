@@ -21,7 +21,9 @@ namespace timeseries {
       Eigen::VectorXd df(x.size()), dfnew(x.size());
       f(x, df);
       f(newX, dfnew);
-      while((f(newX) > f(x) + rho_ * stepSize * df.transpose() * df) || ( df.transpose() * dir < sigma_ * dfnew.transpose() * dir)){
+      size_t counter = 0;
+      while((f(newX) > f(x) + rho_ * stepSize * df.transpose() * df) 
+	    || ( df.transpose() * dir < sigma_ * dfnew.transpose() * dir)){
         stepSize *= r_;
         df = dfnew;
         newX = x + stepSize * dir;

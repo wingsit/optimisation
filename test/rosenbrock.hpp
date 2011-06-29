@@ -3,19 +3,18 @@
 using timeseries::Real;
 using timeseries::RealSeries;
 
-
 class Rosenbrock{
 public:
-  Real operator()(const RealSeries& x) const{
+  Real operator()(const Eigen::VectorXd& x) const{
     return 100. * std::pow(x[1] - x[0] * x[0] , 2.) + std::pow(1-x[0], 2.);
   }
-  RealSeries start() const{
-    RealSeries start(2);
+  Eigen::VectorXd start() const{
+    Eigen::VectorXd start(2);
     start << -1.2 , 1;
     return start;
   }
-  RealSeries criticalPoint() const{
-    RealSeries start(2);
+  Eigen::VectorXd criticalPoint() const{
+    Eigen::VectorXd start(2);
     start << 1. , 1.;
     return start;
   }
