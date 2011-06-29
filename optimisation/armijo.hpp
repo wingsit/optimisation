@@ -19,15 +19,17 @@ namespace timeseries {
 		    Real stepSize){
       Eigen::VectorXd newX = x + stepSize * dir;
       Eigen::VectorXd df(x.size()), dfnew(x.size());
+      int maxIter = 10, counter = 0;
       f(x, df);
       f(newX, dfnew);
-      size_t counter = 0;
+      //      size_t counter = 0;
       while((f(newX) > f(x) + rho_ * stepSize * df.transpose() * df) 
-	    || ( df.transpose() * dir < sigma_ * dfnew.transpose() * dir)){
+	    || ( df.transpose() * dir < sigma_ * dfnew.transpose() * dir) ){
         stepSize *= r_;
         df = dfnew;
         newX = x + stepSize * dir;
         f(newX, dfnew);
+	if(counter++ > maxIter) break;
       }
       return stepSize;
     }

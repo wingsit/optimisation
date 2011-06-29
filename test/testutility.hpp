@@ -5,11 +5,11 @@
 #include <typedef.hpp>
 #include <iostream>
 #include <boost/random.hpp>
-
+#include <errorhandling.hpp>
 static  boost::variate_generator<boost::mt19937, 
     boost::normal_distribution<double> > 
   generator(boost::mt19937(), (boost::normal_distribution<double>()));
 
-#define DEBUG_PRINT(x) std::cout << #x << ": \n" << (x) << "\n";
+//#define DEBUG_PRINT(x) std::cout << #x << ": \n" << (x) << "\n";
 
 #endif

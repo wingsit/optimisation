@@ -1,7 +1,7 @@
 #ifndef timeseries_newtonmethod_hpp
 #define timeseries_newtonmethod_hpp
 
-#define DEBUG_PRINT(x) std::cout << #x << ": \n" << x << "\n";
+#include <errorhandling.hpp>
 
 namespace timeseries {
   template<typename LineSearch>
