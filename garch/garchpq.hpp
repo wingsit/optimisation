@@ -42,6 +42,8 @@ public:
     }
 
 };
+
+
   template<>
   inline void Garch<1, 1>::variancesImpl(const RealSeries& residuals, VarianceSeries& variances) const {
     variances.resize(residuals.size());

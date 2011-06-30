@@ -20,11 +20,14 @@ namespace timeseries {
       size_t n = x.size();
 
       obj(x, g);
-      obj(x, H);
+      DEBUG_PRINT(g);
+      //      obj(x, H);
+      //      H.noalias() = H.ldlt().solve(Eigen::MatrixXd::Identity(n, n));
+      H = 1./g.norm() *Eigen::MatrixXd::Identity(n,n);
       xold = x;
       
-      H = H.ldlt().solve(Eigen::MatrixXd::Identity(n, n));
-      DEBUG_PRINT(H.ldlt().solve(Eigen::MatrixXd::Identity(n, n)));
+      
+      //      DEBUG_PRINT(H.ldlt().solve(Eigen::MatrixXd::Identity(n, n)));
 
       
       while(g.norm() > (10e-6 * n)){
@@ -44,8 +47,13 @@ namespace timeseries {
 	obj(x, gnew);
 	y = gnew - g;
 	s = x - xold;
-	H.noalias() = (Eigen::MatrixXd::Identity(n, n) - s * y.transpose() / (s.transpose() * y ) ) * H * 
+       	if(s.dot(y) > 0){
+	  H.noalias() = (Eigen::MatrixXd::Identity(n, n) - s * y.transpose() / (s.transpose() * y ) ) * H * 
 	  (Eigen::MatrixXd::Identity(n, n) - y * s.transpose() / (s.transpose() * y )) + s * s.transpose() / (s.transpose() * y);
+	}else{
+	  H = x.norm() * Eigen::MatrixXd::Identity(n,n);
+	}
+	
 	xold = x;
       }
       return x;

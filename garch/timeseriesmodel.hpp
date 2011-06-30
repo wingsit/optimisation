@@ -28,19 +28,30 @@ struct  TimeSeriesModel :
         RealSeries variances(data.size());
         this->residuals(data, residuals);
         this->variances(residuals, variances);
-	//	DEBUG_PRINT(mean(residuals));
-	//	DEBUG_PRINT(stdv(residuals));
-	//	DEBUG_PRINT(data.tail(10).transpose());
-	//	DEBUG_PRINT(residuals.tail(10).transpose());
-	//	DEBUG_PRINT(residuals.head(10).transpose());
-	//	DEBUG_PRINT(variances.head(10).transpose());
+	/*
+	DEBUG_PRINT(mean(data));
+	DEBUG_PRINT(stdv(data));
+	DEBUG_PRINT(mean(residuals));
+	DEBUG_PRINT(stdv(residuals));
+	DEBUG_PRINT(data.head(10).transpose());
+	DEBUG_PRINT(data.size());
+	//	DEBUG_PRINT(data.transpose());
+	DEBUG_PRINT(data.tail(10).transpose());
+	DEBUG_PRINT(residuals.head(10).transpose());
+	DEBUG_PRINT(residuals.tail(10).transpose());
+	DEBUG_PRINT(variances.head(10).transpose());
+	DEBUG_PRINT(variances.tail(10).transpose());
 	//	DEBUG_PRINT((residuals/variances.sqrt()).tail(10).transpose());
-        residuals = residuals / variances.sqrt();
-
+	*/
+        residuals /= variances.sqrt();
+	DEBUG_PRINT(residuals.head(10).transpose());
+	DEBUG_PRINT(residuals.tail(10).transpose());
         this->pdf(residuals);
+	DEBUG_PRINT(residuals.head(10).transpose());
+	DEBUG_PRINT(residuals.tail(10).transpose());
 	//	DEBUG_PRINT(residuals.log().tail(10).transpose());
-	//        return -(residuals<1e-6).select(1e-6, residuals).log().sum();
-        return -residuals.log().sum();
+	return -(residuals<1e-6).select(1e-6, residuals).log().sum();
+	//        return -residuals.log().sum();
 
         //    this->residuals(const RealSeries& rtn, RealSeries& residuals);
         //    this->variances(const RealSeries& residuals, VarianceSeries& variances){);
@@ -82,7 +93,17 @@ public:
     Real operator()(const Eigen::VectorXd& parameters) const {
         model_.parameters() = parameters.array();
         model_.setParameters();
-        return model_.loglikelihood(data_);
+	RealSeries residuals(data_.size());
+	RealSeries variances(data_.size());
+	
+	model_.residuals(data_, residuals);
+	model_.variances(residuals, variances);
+	//	DEBUG_PRINT(variances.log().sum());
+	//	DEBUG_PRINT((residuals.pow(2.)/variances).sum());
+	
+	return - variances.log().sum() - (residuals.pow(2.)/variances).sum();
+	
+	//        return model_.loglikelihood(data_);
     }
     T model() {
         return model_;

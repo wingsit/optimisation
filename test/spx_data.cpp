@@ -1,4 +1,8 @@
-spx_daily_return = {
+
+#include <data.hpp>
+
+const extern double spx_daily_return[] = {
+
 5.646542388210040E-03	,
 -2.254792387089320E-03	,
 -9.639995265059980E-03	,
@@ -20975,3 +20979,6 @@ spx_daily_return = {
 7.528515003837110E-03	
 
 	};
+
+
+

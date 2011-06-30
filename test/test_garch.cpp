@@ -10,6 +10,7 @@
 #include <bfgsmethod.hpp>
 #include <newtonmethod.hpp>
 #include <armijo.hpp>
+#include <data.hpp>
 BOOST_AUTO_TEST_CASE(GARCH11){
   using namespace timeseries;
   
@@ -78,8 +79,12 @@ BOOST_AUTO_TEST_CASE(GARCH112){
   using namespace timeseries;
   
   size_t n = 20974;
+
+  RealSeries sample(7520);
   
-  RealSeries sample(n);
+  std::copy(spx_daily_return + n - 7520, spx_daily_return + n, sample.data());
+
+
   
   TimeSeriesModel<SampleMean, Garch<1, 1>, Normal> model;
   RealSeries  residuals(n);
@@ -89,7 +94,8 @@ BOOST_AUTO_TEST_CASE(GARCH112){
 
   model.setSampleMean(sample);
   ParameterArray parameter(3);
-  parameter << 5.82589081260572e-9, 0.7, 0.3;
+  //  parameter << 5.82589081260572e-9, 0.7, 0.3;
+  parameter << 0, 0.5, 0.5;
   model.parameters() = parameter;
   model.setParameters();
   std::cout << model.loglikelihood(sample) << std::endl;
@@ -97,6 +103,8 @@ BOOST_AUTO_TEST_CASE(GARCH112){
   NumericalDerivative<LikelihoodHelper<TimeSeriesModel<SampleMean, Garch<1,1> ,Normal> > >
     objective(model, sample);
 
+  DEBUG_PRINT(objective(parameter));
+  
   std::cout << BFGSMethod<ArmijoLineSearch>()(objective, parameter) << std::endl;
   
   //  std::cout << mean( residuals) << std::endl;

@@ -25,11 +25,14 @@ public:
     typedef typename Eigen::Matrix<scalar_type, Eigen::Dynamic, Eigen::Dynamic> matrix_type;
 
     void defaultEpsilon(scalar_type ep = 0.) {
+      /*
         epsilon = (mode==Forward)?
                   //Numerical Optimization by Nocedal Page 168 Formula 7.6
                   std::max(ep, std::sqrt(std::numeric_limits<scalar_type>::epsilon()))
                   //Numerical Optimization by Nocedal Page 169
                   :std::max(ep, std::pow(std::numeric_limits<scalar_type>::epsilon(), 2./3.));
+      */
+      epsilon = 1e-6;
     }
 
     NumericalDerivative(const function_type& f_, scalar_type ep = 0.):
