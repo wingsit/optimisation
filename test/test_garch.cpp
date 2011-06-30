@@ -6,6 +6,10 @@
 #include <statisticalfunctions.hpp>
 #include <fstream>
 #include <csv_parser.hpp>
+#include <derivative.hpp>
+#include <bfgsmethod.hpp>
+#include <newtonmethod.hpp>
+#include <armijo.hpp>
 BOOST_AUTO_TEST_CASE(GARCH11){
   using namespace timeseries;
   
@@ -57,9 +61,13 @@ BOOST_AUTO_TEST_CASE(GARCH11){
   ParameterArray parameter(3);
   parameter << 2.59048e-7, 0.7, 0.3;
   model.parameters() = parameter;
-  
+  model.setParameters();
   std::cout << model.loglikelihood(sample) << std::endl;
+  
+  NumericalDerivative<LikelihoodHelper<TimeSeriesModel<SampleMean, Garch<1,1> ,Normal> > >
+    objective(model, sample);
 
+  std::cout << NewtonMethod<ArmijoLineSearch>()(objective, parameter) << std::endl;
   
   //  std::cout << mean( residuals) << std::endl;
   

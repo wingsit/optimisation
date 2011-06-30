@@ -31,13 +31,14 @@ struct  TimeSeriesModel :
 	//	DEBUG_PRINT(mean(residuals));
 	//	DEBUG_PRINT(stdv(residuals));
 	//	DEBUG_PRINT(data.tail(10).transpose());
-	DEBUG_PRINT(residuals.tail(10).transpose());
-	DEBUG_PRINT(variances.head(10).transpose());
-	DEBUG_PRINT((residuals/variances.sqrt()).tail(10).transpose());
+	//	DEBUG_PRINT(residuals.tail(10).transpose());
+	//	DEBUG_PRINT(residuals.head(10).transpose());
+	//	DEBUG_PRINT(variances.head(10).transpose());
+	//	DEBUG_PRINT((residuals/variances.sqrt()).tail(10).transpose());
         residuals = residuals / variances.sqrt();
 
         this->pdf(residuals);
-	DEBUG_PRINT(residuals.log().tail(10).transpose());
+	//	DEBUG_PRINT(residuals.log().tail(10).transpose());
 	//        return -(residuals<1e-6).select(1e-6, residuals).log().sum();
         return -residuals.log().sum();
 
@@ -68,6 +69,32 @@ struct  TimeSeriesModel :
     }
 
 };
+
+template<typename T>
+class LikelihoodHelper : public std::unary_function<Eigen::VectorXd, Real> {
+    mutable T model_;
+    RealSeries data_;
+public:
+    typedef T ModelType;
+    LikelihoodHelper(const T& model,
+                     const RealSeries data): model_(model), data_(data) {}
+
+    Real operator()(const Eigen::VectorXd& parameters) const {
+        model_.parameters() = parameters.array();
+        model_.setParameters();
+        return model_.loglikelihood(data_);
+    }
+    T model() {
+        return model_;
+    }
+    const ParameterArray& parameters() const {
+        return model_.parameters();
+    }
+
+    ParameterArray& parameters() {
+        return model_.parameters();
+    }
+ };
 
 }
 

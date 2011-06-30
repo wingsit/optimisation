@@ -9,31 +9,7 @@
 #include <armijo.hpp>
 #include <statisticalfunctions.hpp>
 namespace timeseries{
-template<typename T>
-class LikelihoodHelper : public std::unary_function<Eigen::VectorXd, Real> {
-    mutable T model_;
-    RealSeries data_;
-public:
-    typedef T ModelType;
-    LikelihoodHelper(const T& model,
-                     const RealSeries data): model_(model), data_(data) {}
 
-    Real operator()(const Eigen::VectorXd& parameters) const {
-        model_.parameters() = parameters.array();
-        model_.setParameters();
-        return model_.loglikelihood(data_);
-    }
-    T model() {
-        return model_;
-    }
-    const ParameterArray& parameters() const {
-        return model_.parameters();
-    }
-
-    ParameterArray& parameters() {
-        return model_.parameters();
-    }
- };
   /*
 class NewtonMethod {
 public:
