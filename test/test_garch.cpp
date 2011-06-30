@@ -49,7 +49,7 @@ BOOST_AUTO_TEST_CASE(GARCH11){
   }
   */
 
-  sample = sample.reverse();
+  sample.reverseInPlace();
   sample = log_return(sample);
   TimeSeriesModel<SampleMean, Garch<1, 1>, Normal> model;
   RealSeries  residuals(n);
@@ -59,7 +59,7 @@ BOOST_AUTO_TEST_CASE(GARCH11){
 
   model.setSampleMean(sample);
   ParameterArray parameter(3);
-  parameter << 2.59048e-7, 0.7, 0.3;
+  parameter << 5.82589081260572e-9, 0.7, 0.3;
   model.parameters() = parameter;
   model.setParameters();
   std::cout << model.loglikelihood(sample) << std::endl;
@@ -67,7 +67,37 @@ BOOST_AUTO_TEST_CASE(GARCH11){
   NumericalDerivative<LikelihoodHelper<TimeSeriesModel<SampleMean, Garch<1,1> ,Normal> > >
     objective(model, sample);
 
-  std::cout << NewtonMethod<ArmijoLineSearch>()(objective, parameter) << std::endl;
+  std::cout << BFGSMethod<ArmijoLineSearch>()(objective, parameter) << std::endl;
+  
+  //  std::cout << mean( residuals) << std::endl;
+  
+}
+
+
+BOOST_AUTO_TEST_CASE(GARCH112){
+  using namespace timeseries;
+  
+  size_t n = 20974;
+  
+  RealSeries sample(n);
+  
+  TimeSeriesModel<SampleMean, Garch<1, 1>, Normal> model;
+  RealSeries  residuals(n);
+  
+  std::cout << "Return Sample Mean: " << mean(sample) << "\n";
+  std::cout << "Return Sample Stdv: " << stdv(sample) << "\n";
+
+  model.setSampleMean(sample);
+  ParameterArray parameter(3);
+  parameter << 5.82589081260572e-9, 0.7, 0.3;
+  model.parameters() = parameter;
+  model.setParameters();
+  std::cout << model.loglikelihood(sample) << std::endl;
+  
+  NumericalDerivative<LikelihoodHelper<TimeSeriesModel<SampleMean, Garch<1,1> ,Normal> > >
+    objective(model, sample);
+
+  std::cout << BFGSMethod<ArmijoLineSearch>()(objective, parameter) << std::endl;
   
   //  std::cout << mean( residuals) << std::endl;
   
