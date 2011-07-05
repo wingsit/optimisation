@@ -23,13 +23,15 @@ namespace timeseries {
       f(x, df);
       f(newX, dfnew);
       //      size_t counter = 0;
-      while((f(newX) > f(x) + rho_ * stepSize * df.transpose() * df) 
-	    || ( df.transpose() * dir < sigma_ * dfnew.transpose() * dir) ){
-        stepSize *= r_;
-        df = dfnew;
-        newX = x + stepSize * dir;
-        f(newX, dfnew);
-	if(counter++ > maxIter) break;
+      if(f(newX) > f(x) + rho_ * stepSize * (df.dot( dir))){
+	do{
+	  stepSize *= r_;
+	  df = dfnew;
+	  newX = x + stepSize * dir;
+	  f(newX, dfnew);
+	  if(counter++ > maxIter) break;
+	}      while((f(newX) > f(x) + rho_ * stepSize * df.transpose() * df) 
+		     || ( df.transpose() * dir < sigma_ * dfnew.transpose() * dir));
       }
       return stepSize;
     }

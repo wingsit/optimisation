@@ -17,7 +17,7 @@ namespace timeseries {
       Eigen::MatrixXd H;
       LineSearch lineSaerch;
       
-      size_t n = x.size();
+      size_t n = x.size(), iterCount = 0;
 
       obj(x, g);
       DEBUG_PRINT(g);
@@ -40,6 +40,7 @@ namespace timeseries {
 	a = lineSaerch(obj, x, d, a);
 	obj(x, g);
 	DEBUG_PRINT((x + a * d).transpose());
+	std::cout << iterCount++ << " " << obj(x) << " ";
 	x = x +  a * d;
 	DEBUG_PRINT(obj(x));
 	DEBUG_PRINT(H.inverse());
@@ -47,6 +48,9 @@ namespace timeseries {
 	obj(x, gnew);
 	y = gnew - g;
 	s = x - xold;
+	
+	std::cout << " " << x.transpose() << " " << gnew.norm() << " " << s.norm() << " " << y.norm() << "\n";
+
        	if(s.dot(y) > 0){
 	  H.noalias() = (Eigen::MatrixXd::Identity(n, n) - s * y.transpose() / (s.transpose() * y ) ) * H * 
 	  (Eigen::MatrixXd::Identity(n, n) - y * s.transpose() / (s.transpose() * y )) + s * s.transpose() / (s.transpose() * y);

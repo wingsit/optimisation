@@ -95,7 +95,11 @@ BOOST_AUTO_TEST_CASE(GARCH112){
   model.setSampleMean(sample);
   ParameterArray parameter(3);
   //  parameter << 5.82589081260572e-9, 0.7, 0.3;
-  parameter << 0, 0.5, 0.5;
+  parameter[0] = 5.825e-9;
+  parameter[1] = 0.7;
+  parameter[2] = 0.3;
+  
+  // parameter << 0, 0.5, 0.5;
   model.parameters() = parameter;
   model.setParameters();
   std::cout << model.loglikelihood(sample) << std::endl;

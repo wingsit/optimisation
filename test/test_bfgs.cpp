@@ -15,7 +15,7 @@ BOOST_AUTO_TEST_CASE(BFGS_ON_ROSENBROCK){
 
 BOOST_AUTO_TEST_CASE(BFGS_ON_EXTENDED_ROSENBROCK){
   using namespace timeseries;
-  NumericalDerivative<ExtendedRosenbrock> f(100);
+  NumericalDerivative<ExtendedRosenbrock> f(6);
   std::cout << (f.criticalPoint() - BFGSMethod<ArmijoLineSearch>()(f, f.start())).norm() << std::endl;
 }
 

@@ -100,10 +100,10 @@ public:
 	model_.variances(residuals, variances);
 	//	DEBUG_PRINT(variances.log().sum());
 	//	DEBUG_PRINT((residuals.pow(2.)/variances).sum());
+		
+	//	return - variances.log().sum() - (residuals.pow(2.)/variances).sum();
 	
-	return - variances.log().sum() - (residuals.pow(2.)/variances).sum();
-	
-	//        return model_.loglikelihood(data_);
+	return model_.loglikelihood(data_);
     }
     T model() {
         return model_;
