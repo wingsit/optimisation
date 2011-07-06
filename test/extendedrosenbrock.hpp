@@ -15,7 +15,7 @@ public:
   Real operator()(const Eigen::VectorXd& x) const{
     Real acc = 0;
     for(int i = 0; i < n_ - 1; ++i){
-      acc += 100. * std::pow(x[i+1] - std::pow(x[i], 2.), 2) + std::pow(1 - x[i] , 2.);
+      acc += 100. * std::pow(x[i+1] - std::pow(x[i], 2.), 2.) + std::pow(1 - x[i] , 2.);
     }
     return acc;
   }

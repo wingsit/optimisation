@@ -77,7 +77,7 @@ BOOST_AUTO_TEST_CASE(NEWTON_METHOD){
     NumericalDerivative<LikelihoodHelper<TimeSeriesModel<ConstantMean, ConstantVariance, Normal> > , Central> objective2(objective);
 
     //std::cout << NewtonMethod<ArmijoLineSearch>()(objective2, p).transpose() << std::endl;
-    std::cout << BFGSMethod<ArmijoLineSearch>()(objective2, p).transpose() << std::endl;
+    //    std::cout << BFGSMethod<ArmijoLineSearch>()(objective2, p).transpose() << std::endl;
     std::cout << mean(sample) << " " << stdv(sample) << "\n";
 
     /*

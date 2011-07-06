@@ -38,7 +38,7 @@ BOOST_AUTO_TEST_CASE(filter) {
     size_t n = 1000;
 
     using Eigen::ArrayXd;
-
+    using namespace timeseries;
     ArrayXd x(10*n), y(10*n), a(n), b(2*n);
     /*
       {
@@ -195,9 +195,9 @@ BOOST_AUTO_TEST_CASE(filter) {
                 yCopy[i] = 0;
             }
 
-            for(size_t i = m; i < y.rows(); ++i) {
+            for(Size i = m; i < y.rows(); ++i) {
                 yCopy[i] = x[i];
-                for(size_t j = 0; j < m; ++j) {
+                for(Size j = 0; j < m; ++j) {
                     yCopy[i] += a[j]*yCopy[i-1-j];
                 }
                 /*

@@ -6,7 +6,7 @@ using timeseries::RealSeries;
 class Rosenbrock{
 public:
   Real operator()(const Eigen::VectorXd& x) const{
-    return 100. * std::pow(x[1] - x[0] * x[0] , 2.) + std::pow(1-x[0], 2.);
+    return (100. * std::pow(x[1] - std::pow(x[0], 2.) , 2.) + std::pow(1 - x[0], 2.));
   }
   Eigen::VectorXd start() const{
     Eigen::VectorXd start(2);
@@ -22,8 +22,6 @@ public:
     return 0.;
   }
   size_t size() const{
-    return 4;
+    return 2;
   }
 };
-
-

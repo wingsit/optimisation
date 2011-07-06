@@ -3,6 +3,7 @@
 
 #include <Eigen/Dense>
 #include <iostream>
+#include <typedef.hpp>
 namespace timeseries {
 
 using Eigen::DenseBase;
@@ -34,7 +35,7 @@ void filter(const DenseBase<Derived1>& x,
     y.topRows(std::max(ma, mb)) = DenseBase<Derived1>::Constant(std::max(ma, mb),y.cols(), backfill);
 
     if(instantaneousX) {
-        for(size_t i = std::max(ma, mb); i < y.rows(); ++i) {
+        for(Size i = std::max(ma, mb); i < y.rows(); ++i) {
             y.row(i) =
                 c
                 + x.row(i)
@@ -42,7 +43,7 @@ void filter(const DenseBase<Derived1>& x,
                 +(a.colwise().reverse() * y.block(i-ma, 0, a.rows(), a.cols())).colwise().sum();
         }
     } else {
-        for(size_t i = std::max(ma, mb); i < y.rows(); ++i) {
+        for(Size i = std::max(ma, mb); i < y.rows(); ++i) {
             y.row(i) =
                 c
                 +(b.colwise().reverse() * x.block(i-mb+1, 0, b.rows(), b.cols())).colwise().sum()

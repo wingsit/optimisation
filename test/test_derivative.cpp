@@ -16,7 +16,7 @@ struct SymmetricInnerProduct{
   void derivative(const VectorXd& v, VectorXd& gradient){
     gradient= 2. * A_ * v;
   }
-  void hessian(const VectorXd& v, MatrixXd& hessian){
+  void hessian(const VectorXd&, MatrixXd& hessian){
     hessian = 2. * A_;
   }
 };

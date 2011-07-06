@@ -19,20 +19,21 @@
 #include <boost/fusion/include/algorithm.hpp>
 
 typedef boost::fusion::vector<
-  //  Rosenbrock, 
+  Rosenbrock, 
+  ExtendedRosenbrock<2>, 
   ExtendedRosenbrock<10>, 
   ExtendedRosenbrock<20>, 
   ExtendedRosenbrock<100>, 
-  ExtendedRosenbrock<200>, 
-  ExtendedRosenbrock<500>, 
+  //  ExtendedRosenbrock<200>, 
+  //  ExtendedRosenbrock<500>, 
   //  ExtendedRosenbrock<1000>, 
   Wood, 
   PowellSingular, 
   Trigonometric<10> ,
   Trigonometric<20> ,
-  Trigonometric<100> ,
-  Trigonometric<200> ,
-  Trigonometric<500> 
+  Trigonometric<100>
+  //  Trigonometric<200> ,
+  //  Trigonometric<500> 
   //Trigonometric<1000>
   > TestProblems;
 

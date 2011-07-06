@@ -24,7 +24,9 @@ namespace timeseries {
       //obj(x, H); H = H.ldlt().solve(Eigen::MatrixXd::Identity(n, n));
       
       H = 10e-6/g.norm() *Eigen::MatrixXd::Identity(n,n);
+
       xold = x;
+      
       
       
       //      DEBUG_PRINT(H.ldlt().solve(Eigen::MatrixXd::Identity(n, n)));
@@ -35,7 +37,7 @@ namespace timeseries {
 #if DEBUG
 	std::cout << std::string(20, '-') << std::endl;
 #endif
-	d = - H * g;
+	d = -( H * g);
 	//	DEBUG_PRINT(d);
 	Real a = 1.;
 	a = lineSaerch(obj, x, d, a);
@@ -50,8 +52,8 @@ namespace timeseries {
 #endif
 	x = x +  a * d;
 	DEBUG_PRINT(obj(x));
-	DEBUG_PRINT(H.inverse());
-	DEBUG_PRINT(H.inverse().ldlt().vectorD());
+	//	DEBUG_PRINT(H.inverse());
+	//	DEBUG_PRINT(H.inverse().ldlt().vectorD());
 	obj(x, gnew);
 	y = gnew - g;
 	s = x - xold;
@@ -59,11 +61,14 @@ namespace timeseries {
 	std::cout << gnew.norm() << " " << s.norm() << " " << y.norm() << "\n";
 #endif
        	if(s.dot(y) > 0){
-	  H.noalias() = (Eigen::MatrixXd::Identity(n, n) - s * y.transpose() / (s.transpose() * y ) ) * H * 
-	  (Eigen::MatrixXd::Identity(n, n) - y * s.transpose() / (s.transpose() * y )) + s * s.transpose() / (s.transpose() * y);
+	  H.noalias() = (Eigen::MatrixXd::Identity(n, n) - s * y.transpose() / (s.transpose() * y ) ) * H * (Eigen::MatrixXd::Identity(n, n) - y * s.transpose() / (s.transpose() * y )) + s * s.transpose() / (s.transpose() * y);
+	  
 	}else{
-	  H = x.norm() * Eigen::MatrixXd::Identity(n,n);
-	  //H = Eigen::MatrixXd::Identity(n,n);
+#if TRACE
+	  std::cout << "Reseted" << std::endl;
+#endif
+	  H = x.norm() * Eigen::MatrixXd::Identity(n,n); 
+	  //	  H = Eigen::MatrixXd::Identity(n,n); 
 	}
 	
 	xold = x;
