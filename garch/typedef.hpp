@@ -3,7 +3,6 @@
 
 #include <Eigen/Eigen>
 
-
 namespace timeseries {
 
 typedef Eigen::ArrayXd RealSeries;

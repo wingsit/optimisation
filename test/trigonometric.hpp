@@ -1,10 +1,12 @@
 #include <typedef.hpp>
 
+
+template<int n_ = 10>
 class Trigonometric{
-  size_t n_; 
+  //  size_t n_; 
 public:
-  Trigonometric(size_t n = 100):n_(n){}
-  Real operator()(const RealSeries& x) const{
+  //  Trigonometric(){}
+  Real operator()(const Eigen::VectorXd& x) const{
     Real acc = 0;
     for(size_t i=0;i<n_;++i){
       Real acc2 = 0;
@@ -15,20 +17,20 @@ public:
     }
     return acc;
   }
-  RealSeries start() const{
-    RealSeries start = RealSeries::Constant(n_, 0.2/n_);
+  Eigen::VectorXd start() const{
+    Eigen::VectorXd start = Eigen::VectorXd::Constant(n_, 0.2/n_);
     
     return start;
   }
-  RealSeries criticalPoint() const{
+  Eigen::VectorXd criticalPoint() const{
 
-    return RealSeries::Zero(n_);
+    return Eigen::VectorXd::Zero(n_);
   }
   Real min() const{
     return 0.;
   }
   size_t size() const{
-    return n;
+    return n_;
   }
 
 };

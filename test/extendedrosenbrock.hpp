@@ -3,12 +3,15 @@
 using timeseries::Real;
 using timeseries::RealSeries;
 
+template<int n_ = 10>
 class ExtendedRosenbrock{
-  size_t n_;
+  //  size_t n_;
 public:
-  ExtendedRosenbrock(size_t n):n_(n){
-    assert((n%2)==0);
+  /*
+  ExtendedRosenbrock()){
+    //    assert((n_%2)==0);
   }
+  */
   Real operator()(const Eigen::VectorXd& x) const{
     Real acc = 0;
     for(size_t i = 0; i < n_ - 1; ++i){

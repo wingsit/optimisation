@@ -1,6 +1,6 @@
 #ifndef timeseries_errorhandling_hpp
 #define timeseries_errorhandling_hpp
-
+#include <iomanip>
 #define DEBUG 0
 
 #if DEBUG

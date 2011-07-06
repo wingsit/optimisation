@@ -109,6 +109,6 @@ BOOST_AUTO_TEST_CASE(NEWTON_ON_ROSENBROCK){
 
 BOOST_AUTO_TEST_CASE(NEWTON_ON_EXTENDED_ROSENBROCK){
   using namespace timeseries;
-  NumericalDerivative<ExtendedRosenbrock> f(10);
+  NumericalDerivative<ExtendedRosenbrock<> > f;
   std::cout << (f.criticalPoint() - NewtonMethod<ArmijoLineSearch>()(f, f.start())).norm() << std::endl;
 }

@@ -4,6 +4,8 @@
 #include <meanprocess.hpp>
 #include <varianceprocess.hpp>
 #include <statisticalfunctions.hpp>
+#include <typedef.hpp>
+#include <errorhandling.hpp>
 namespace timeseries {
 
 template<typename M> class MeanProcess;

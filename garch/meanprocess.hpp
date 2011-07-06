@@ -1,6 +1,8 @@
 #ifndef timeseries_meanprocess_hpp
 #define timeseries_meanprocess_hpp
 
+#include <typedef.hpp>
+
 namespace timeseries {
 
 

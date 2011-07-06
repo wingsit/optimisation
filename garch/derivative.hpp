@@ -25,14 +25,14 @@ public:
     typedef typename Eigen::Matrix<scalar_type, Eigen::Dynamic, Eigen::Dynamic> matrix_type;
 
     void defaultEpsilon(scalar_type ep = 0.) {
-      /*
-        epsilon = (mode==Forward)?
-                  //Numerical Optimization by Nocedal Page 168 Formula 7.6
-                  std::max(ep, std::sqrt(std::numeric_limits<scalar_type>::epsilon()))
-                  //Numerical Optimization by Nocedal Page 169
-                  :std::max(ep, std::pow(std::numeric_limits<scalar_type>::epsilon(), 2./3.));
-      */
-      epsilon = 1e-6;
+      
+      epsilon = (mode==Forward)?
+	//Numerical Optimization by Nocedal Page 168 Formula 7.6
+	std::max(ep, std::sqrt(std::numeric_limits<scalar_type>::epsilon()))
+	//Numerical Optimization by Nocedal Page 169
+	:std::max(ep, std::pow(std::numeric_limits<scalar_type>::epsilon(), 2./3.));
+      
+      //      epsilon = 1e-6;
     }
 
     NumericalDerivative(const function_type& f_, scalar_type ep = 0.):
@@ -86,18 +86,23 @@ public:
     //gradient
     /// \todo http://groups.google.com/group/comp.lang.c++.moderated/msg/e5fbc9305539f699
     inline scalar_type operator()(vector_type x, index_type i) const{
-        scalar_type centre, backstep, forwardstep;
+      scalar_type centre, backstep, forwardstep, epsilon_ = epsilon;// * x[i];
+      /*
+      if(epsilon_ == 0.){
+	epsilon_ = epsilon;
+      }
+      */
         switch(mode) {
         case Forward:
             centre = function_type::operator()(x);
-            x[i]+=epsilon;
-            return (function_type::operator()(x) - centre)/epsilon;
+            x[i]+=epsilon_;
+            return (function_type::operator()(x) - centre)/epsilon_;
         case Central:
-            x[i]+=epsilon;
+            x[i]+=epsilon_;
             forwardstep = function_type::operator()(x);
-            x[i]-=2.*epsilon;
+            x[i]-=2.*epsilon_;
             backstep=function_type::operator()(x);
-            return 0.5*(forwardstep - backstep)/epsilon;
+            return 0.5*(forwardstep - backstep)/epsilon_;
         default:
             assert(false);
             return 0;
@@ -121,7 +126,7 @@ public:
     inline scalar_type operator()(vector_type x, index_type i, index_type j)const {
         scalar_type topleft, topright, bottomleft, bottomright;
         scalar_type result;
-        scalar_type epsilon_ = std::max(10e-6, epsilon);
+	scalar_type epsilon_ = std::max(10e-6, epsilon);// * std::min(x[i], x[j]);
         switch(mode) {
         case Forward:
             bottomleft = function_type::operator()(x);
