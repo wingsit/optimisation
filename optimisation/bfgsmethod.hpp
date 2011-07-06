@@ -31,7 +31,7 @@ namespace timeseries {
 
       std::cout.precision(8);
       Eigen::IOFormat CommaInitFmt(Eigen::StreamPrecision, 0, " ", "", "", "", "", "");
-      while(g.norm() > (10e-6)){
+      while(g.norm() > (10e-6) * n){
 #if DEBUG
 	std::cout << std::string(20, '-') << std::endl;
 #endif
@@ -41,7 +41,7 @@ namespace timeseries {
 	a = lineSaerch(obj, x, d, a);
 	obj(x, g);
 	DEBUG_PRINT((x + a * d).transpose());
-#if DEBUG
+#if TRACE
 	std::cout.precision(8);
 	std::cout << std::setw(5) <<  iterCount++ 
 		  << " " << std::setw(10) << obj(x) 
@@ -55,7 +55,7 @@ namespace timeseries {
 	obj(x, gnew);
 	y = gnew - g;
 	s = x - xold;
-#if DEBUG	
+#if TRACE	
 	std::cout << gnew.norm() << " " << s.norm() << " " << y.norm() << "\n";
 #endif
        	if(s.dot(y) > 0){

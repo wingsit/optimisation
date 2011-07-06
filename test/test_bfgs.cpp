@@ -18,22 +18,23 @@
 #include <boost/fusion/algorithm.hpp>
 #include <boost/fusion/include/algorithm.hpp>
 
-typedef boost::fusion::vector<Rosenbrock, 
-			      ExtendedRosenbrock<10>, 
-			      ExtendedRosenbrock<20>, 
-			      ExtendedRosenbrock<100>, 
-			      //			      ExtendedRosenbrock<200>, 
-			      //			      ExtendedRosenbrock<500>, 
-			      //			      ExtendedRosenbrock<1000>, 
-			      Wood, 
-			      PowellSingular, 
-			      Trigonometric<10> ,
-			      Trigonometric<20> ,
-			      Trigonometric<100> ,
-			      Trigonometric<200> ,
-			      Trigonometric<500> ,
-			      Trigonometric<1000>
-			      > TestProblems;
+typedef boost::fusion::vector<
+  //  Rosenbrock, 
+  ExtendedRosenbrock<10>, 
+  ExtendedRosenbrock<20>, 
+  ExtendedRosenbrock<100>, 
+  ExtendedRosenbrock<200>, 
+  ExtendedRosenbrock<500>, 
+  //  ExtendedRosenbrock<1000>, 
+  Wood, 
+  PowellSingular, 
+  Trigonometric<10> ,
+  Trigonometric<20> ,
+  Trigonometric<100> ,
+  Trigonometric<200> ,
+  Trigonometric<500> 
+  //Trigonometric<1000>
+  > TestProblems;
 
 BOOST_AUTO_TEST_CASE(BFGS_ON_ROSENBROCK){
   using namespace timeseries;
@@ -46,7 +47,7 @@ BOOST_AUTO_TEST_CASE(BFGS_ON_ROSENBROCK){
 BOOST_AUTO_TEST_CASE(BFGS_ON_EXTENDED_ROSENBROCK){
 
   using namespace timeseries;
-  NumericalDerivative<ExtendedRosenbrock<> > f;
+  NumericalDerivative<ExtendedRosenbrock<10> > f;
   std::cout << (f.criticalPoint() - BFGSMethod<ArmijoLineSearch>()(f, f.start())).norm() << std::endl;
 }
 
@@ -70,10 +71,10 @@ BOOST_AUTO_TEST_CASE(BFGS_ON_TRIGONOMETRIC){
 
 struct TestHelper{
   template<typename T>
-  void operator()(T const& t) const{
+  void operator()(T t) const{
     using namespace timeseries;
     using boost::timer;
-    NumericalDerivative<T> f(t);
+    NumericalDerivative<T> f;
     std::cout << "Run test for <" << typeid(t).name() << "> \n";
     timer ti;
     BFGSMethod<ArmijoLineSearch> bfgs;

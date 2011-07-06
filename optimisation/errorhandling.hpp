@@ -2,6 +2,7 @@
 #define timeseries_errorhandling_hpp
 #include <iomanip>
 #define DEBUG 0
+#define TRACE 0
 
 #if DEBUG
 #define DEBUG_PRINT(x) std::cout << __FILE__ << ":" << __FUNCTION__<< ":" << __LINE__ << " " << #x << ": \n" << x << "\n";		
