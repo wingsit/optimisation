@@ -8,7 +8,7 @@
 
 
 
-namespace timeseries{
+namespace timeseries {
 class SampleEstimation {
 public:
     SampleEstimation(const TimeSeriesModel<SampleMean, SampleVariance, Normal> model):model_(model) {}
@@ -26,19 +26,19 @@ private:
 
 }
 
-BOOST_AUTO_TEST_CASE(SAMPLE_MODEL){
-  using namespace timeseries;
+BOOST_AUTO_TEST_CASE(SAMPLE_MODEL) {
+    using namespace timeseries;
 
     Size n = 1000;
 
 
-    RealSeries sample = RealSeries::Random(n), 
-      forecast;
-    
-    for(int i = 0; i < n; ++i){
-      sample[i] = generator();
+    RealSeries sample = RealSeries::Random(n),
+               forecast;
+
+    for(int i = 0; i < n; ++i) {
+        sample[i] = generator();
     }
-    
+
     TimeSeriesModel<SampleMean, SampleVariance, Normal> timeSeriesModel2;
     SampleEstimation sampleEstimation(timeSeriesModel2);
     timeSeriesModel2 = sampleEstimation.estimate(sample);
@@ -55,5 +55,5 @@ BOOST_AUTO_TEST_CASE(SAMPLE_MODEL){
     double TOL = 10e-8;
     BOOST_REQUIRE_CLOSE(timeSeriesModel2.sampleMean(), mean(sample), TOL);
     BOOST_REQUIRE_CLOSE(timeSeriesModel2.sampleStandardDeviation(), stdv(sample), TOL);
-    
+
 }

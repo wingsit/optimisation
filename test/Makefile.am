@@ -11,10 +11,7 @@ unit_test_SOURCES = \
 	test_samplemodel.cpp \
 	test_statisticalfunctions.cpp \
 	test_normal.cpp \
-	test_parser.cpp \
 	test_bfgs.cpp \
-	test_garch.cpp \
-	test_eigen_move_semantic.cpp \	
 	spx_data.cpp
 
 #unit_test_LDADD=../garch/libgarch.a

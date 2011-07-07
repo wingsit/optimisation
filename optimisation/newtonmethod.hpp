@@ -20,7 +20,9 @@ namespace timeseries {
       DEBUG_PRINT(G);
       DEBUG_PRINT(G.ldlt().solve(g));
       while(g.norm() > 10e-10){
+#if DEBUG
 	std::cout << std::string(20, '-') << std::endl;
+#endif
 	d = G.ldlt().solve(-g);
 	DEBUG_PRINT(G.ldlt().solve(-g).transpose());
 	DEBUG_PRINT(G.ldlt().vectorD());

@@ -7,28 +7,28 @@
 using boost::timer;
 
 
-class Combination{
-  boost::unordered_map<std::pair<int, int>, long> hist_;
+class Combination {
+    boost::unordered_map<std::pair<int, int>, long> hist_;
 public:
-  Combination():hist_(boost::unordered_map<std::pair<int, int>, long>()){}
+    Combination():hist_(boost::unordered_map<std::pair<int, int>, long>()) {}
 
-  long operator()(int n, int k){
-    if(k == 0){
-      hist_[std::make_pair(n, k)] = 1;
-      return 1;
+    long operator()(int n, int k) {
+        if(k == 0) {
+            hist_[std::make_pair(n, k)] = 1;
+            return 1;
+        }
+        if(n == 0) {
+            hist_[std::make_pair(n, k)] = 0;
+            return 0;
+        }
+        std::pair<int, int> p = std::make_pair(n, k);
+        if(hist_.find(p) != hist_.end()) {
+            return hist_[p];
+        }
+        long n_ = (*this)(n-1, k-1) + (*this)(n-1, k);
+        hist_[p] = n_;
+        return n_;
     }
-    if(n == 0){
-      hist_[std::make_pair(n, k)] = 0;
-      return 0;
-    }
-    std::pair<int, int> p = std::make_pair(n, k);
-    if(hist_.find(p) != hist_.end()){
-      return hist_[p];
-    }
-    long n_ = (*this)(n-1, k-1) + (*this)(n-1, k);
-    hist_[p] = n_;
-    return n_;
-  }
 };
 
 
@@ -171,15 +171,15 @@ BOOST_AUTO_TEST_CASE(filter) {
     {
         for(size_t m = 1; m < 20; ++m) {
             x = ArrayXd::Random(10*n);
-	    //            x = x / x.matrix().norm();
+            //            x = x / x.matrix().norm();
             y = ArrayXd::Random(10*n);
-	    //            y = y / y.matrix().norm();
+            //            y = y / y.matrix().norm();
             b = ArrayXd::Zero(0);
 
             a = ArrayXd(m);
             Combination combination;
-            for(size_t i = 0; i < m;++i){
-              a[i] = - combination(m, i+1) * std::pow(-0.2, static_cast<double>(i+1));
+            for(size_t i = 0; i < m; ++i) {
+                a[i] = - combination(m, i+1) * std::pow(-0.2, static_cast<double>(i+1));
             }
 
             ArrayXd yCopy = y;

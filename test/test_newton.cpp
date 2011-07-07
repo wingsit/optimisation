@@ -8,48 +8,48 @@
 #include <bfgsmethod.hpp>
 #include <armijo.hpp>
 #include <statisticalfunctions.hpp>
-namespace timeseries{
+namespace timeseries {
 
-  /*
+/*
 class NewtonMethod {
 public:
-    template<typename F>
-    typename F::ModelType minimise(F f)const {
-        Eigen::VectorXd df, p;
-        Eigen::MatrixXd ddf;
-        size_t iter = 0;
-        while(f.parameters().matrix().norm() > 1e-6) {
-            p = f.parameters().matrix();
-            f(p, df);
-            f(p, ddf);
-            std::cout << std::string(20, '=') << std::endl;
-	    DEBUG_PRINT(iter);
-	    DEBUG_PRINT(p);
-	    DEBUG_PRINT(f(p));
-	    DEBUG_PRINT(df);
-	    DEBUG_PRINT(ddf);
-            p -= ddf.ldlt().solve(df);
-            f.parameters() = p.array();
-            iter++;
-        }
-        return f.model();
-    }
+  template<typename F>
+  typename F::ModelType minimise(F f)const {
+      Eigen::VectorXd df, p;
+      Eigen::MatrixXd ddf;
+      size_t iter = 0;
+      while(f.parameters().matrix().norm() > 1e-6) {
+          p = f.parameters().matrix();
+          f(p, df);
+          f(p, ddf);
+          std::cout << std::string(20, '=') << std::endl;
+    DEBUG_PRINT(iter);
+    DEBUG_PRINT(p);
+    DEBUG_PRINT(f(p));
+    DEBUG_PRINT(df);
+    DEBUG_PRINT(ddf);
+          p -= ddf.ldlt().solve(df);
+          f.parameters() = p.array();
+          iter++;
+      }
+      return f.model();
+  }
 };
-  */
+*/
 }
-BOOST_AUTO_TEST_CASE(NEWTON_METHOD){
-  using namespace timeseries;
-  
-  TimeSeriesModel<ConstantMean, ConstantVariance, Normal> timeSeriesModel;
+BOOST_AUTO_TEST_CASE(NEWTON_METHOD) {
+    using namespace timeseries;
+
+    TimeSeriesModel<ConstantMean, ConstantVariance, Normal> timeSeriesModel;
 
     Size n = 500;
     //    RealSeries sample = RealSeries::Random(n);
-        RealSeries sample(n);
-	for(int i = 0; i < n; ++i){
-	  sample[i] = generator();
-	}
-	  
-    
+    RealSeries sample(n);
+    for(int i = 0; i < n; ++i) {
+        sample[i] = generator();
+    }
+
+
 
     timeSeriesModel.pdf(sample);
 
@@ -99,16 +99,38 @@ BOOST_AUTO_TEST_CASE(NEWTON_METHOD){
 
 #include <rosenbrock.hpp>
 
-BOOST_AUTO_TEST_CASE(NEWTON_ON_ROSENBROCK){
-  using namespace timeseries;
-  NumericalDerivative<Rosenbrock> f;
-  std::cout << (f.criticalPoint() - NewtonMethod<ArmijoLineSearch>()(f, f.start())).norm() << std::endl;
+BOOST_AUTO_TEST_CASE(NEWTON_ON_ROSENBROCK) {
+    using namespace timeseries;
+    NumericalDerivative<Rosenbrock> f;
+    std::cout << (f.criticalPoint() - NewtonMethod<ArmijoLineSearch>()(f, f.start())).norm() << std::endl;
 }
 
 #include <extendedrosenbrock.hpp>
 
-BOOST_AUTO_TEST_CASE(NEWTON_ON_EXTENDED_ROSENBROCK){
-  using namespace timeseries;
-  NumericalDerivative<ExtendedRosenbrock<> > f;
-  std::cout << (f.criticalPoint() - NewtonMethod<ArmijoLineSearch>()(f, f.start())).norm() << std::endl;
+BOOST_AUTO_TEST_CASE(NEWTON_ON_EXTENDED_ROSENBROCK) {
+    using namespace timeseries;
+    NumericalDerivative<ExtendedRosenbrock<> > f;
+    std::cout << (f.criticalPoint() - NewtonMethod<ArmijoLineSearch>()(f, f.start())).norm() << std::endl;
+}
+
+
+struct TestHelper {
+    template<typename T>
+    void operator()(T t) const {
+        using namespace timeseries;
+        using boost::timer;
+        NumericalDerivative<T> f;
+        std::cout << "Run test for <" << typeid(t).name() << "> \n";
+        timer ti;
+        NewtonMethod<ArmijoLineSearch> newton;
+        std::cout << (f.criticalPoint() - newton(f, f.start())).norm() << std::endl;
+        std::cout << "Time Elapsed " << ti.elapsed() << std::endl;
+    }
+};
+
+BOOST_AUTO_TEST_CASE(NEWTON) {
+    using namespace timeseries;
+
+    TestProblems testProblems;
+    boost::fusion::for_each(testProblems, TestHelper());
 }
