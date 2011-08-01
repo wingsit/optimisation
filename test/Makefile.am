@@ -12,6 +12,8 @@ unit_test_SOURCES = \
 	test_statisticalfunctions.cpp \
 	test_normal.cpp \
 	test_bfgs.cpp \
-	spx_data.cpp
+	test_lbfgs.cpp \
+	spx_data.cpp \
+	test_fixedqueue.cpp
 
 #unit_test_LDADD=../garch/libgarch.a

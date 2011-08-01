@@ -30,8 +30,8 @@ namespace timeseries {
 	  newX = x + stepSize * dir;
 	  f(newX, dfnew);
 	  if(counter++ > maxIter) break;
-	}      while((f(newX) > f(x) + rho_ * stepSize * df.transpose() * df) 
-		     || ( df.transpose() * dir < sigma_ * dfnew.transpose() * dir));
+	} while((f(newX) > f(x) + rho_ * stepSize * df.transpose() * df) 
+		|| ( df.transpose() * dir < sigma_ * dfnew.transpose() * dir));
       }
       return stepSize;
     }
